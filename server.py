@@ -39,12 +39,12 @@ def handle_client(client):  # Takes client socket as argument.
                 client.send(bytes("Please enter the movie name you want to search: ", "utf8"))
                 search_string = client.recv(BUFSIZ).decode("utf8")
                 result = movie_controller.search_movie(search_string)
-                result += '\nPlease enter the movie name you want to search or type Back to return to Home: '
+                result += '\nPlease enter the movie name you want to search or type "back" to return to Home: '
                 client.send(bytes(result, "utf8"))
                 next_search = client.recv(BUFSIZ).decode("utf8")
                 while next_search != 'back':
                     result = movie_controller.search_movie(next_search)
-                    result += '\nPlease enter the movie name you want to search or type Back to return to Home: '
+                    result += '\nPlease enter the movie name you want to search or type "back" to return to Home: '
                     client.send(bytes(result, "utf8"))
                     next_search = client.recv(BUFSIZ).decode("utf8")
                 break
@@ -57,28 +57,21 @@ def handle_client(client):  # Takes client socket as argument.
             elif msg == '3':
                 client.send(bytes("Please enter a movie ID you want to find other similar movies to: ", "utf8"))
                 search_string = client.recv(BUFSIZ).decode("utf8")
-                result = '2 match found with ' + search_string + ': '
-                result += '\nId: 101 - The Avengers. Genres: Action | Comedy'
-                result += '\nId: 87 - 007. Genres: Action | Comedy'
+                result = movie_controller.get_similar_movies(search_string)
                 result += '\nPlease enter a movie ID you want to find other similar movies to' \
-                          ' or type Back to return to Home: '
+                          ' or type "back" to return to Home: '
                 client.send(bytes(result, "utf8"))
-                back = client.recv(BUFSIZ).decode("utf8")
-                while back != 'back':
+                next_search = client.recv(BUFSIZ).decode("utf8")
+                while next_search != 'back':
                     result = '2 match found with ' + search_string + ': '
-                    result += '\nId: 101 - The Avengers. Genres: Action | Comedy'
-                    result += '\nId: 87 - 007. Genres: Action | Comedy'
+                    result += movie_controller.get_similar_movies(next_search)
                     result += '\nPlease enter a movie ID you want to find other similar movies to' \
-                              ' or type Back to return to Home: '
+                              ' or type "back" to return to Home: '
                     client.send(bytes(result, "utf8"))
-                    back = client.recv(BUFSIZ).decode("utf8")
+                    next_search = client.recv(BUFSIZ).decode("utf8")
                 break
             elif msg == '4':
-                result = "Here is the list of movies you might be interested in: "
-                result += '\nForest Gump - Proximity: 4.6'
-                result += '\nA Star is born - Proximity: 4.6'
-                result += '\nWall Street - Proximity: 4.6'
-                result += '\nFriends - Proximity: 4.6'
+                result = movie_controller.get_interested_movies(1)
                 result += '\nSend any key to return to Home'
                 client.send(bytes(result, "utf8"))
                 back = client.recv(BUFSIZ).decode("utf8")

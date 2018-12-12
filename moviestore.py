@@ -9,3 +9,9 @@ class MovieStore:
 
     def get_rated_movies(self, user_id):
         return [(1,"The Avenger")]
+
+    def get_similar_movies(self, movie_id):
+        return [(1,"The Avenger"),(2,"Iron man"),(3,"Spiderman")]
+
+    def get_interested_movies(self, user_id):
+        return [(1,"Nothing"),(2,"Iron man"),(3,"Spiderman")]
