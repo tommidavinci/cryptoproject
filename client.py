@@ -26,10 +26,13 @@ while True:
     try:
         msg = client_socket.recv(BUFSIZ).decode("utf8")
         print(msg)
+        if msg == "quit":
+            print("closing...")
+            client_socket.close()
+            break
         selection = input()
         client_socket.send(bytes(selection, "utf8"))
-        if msg == "quit":
-            client_socket.close()
+
     except OSError:  # Possibly client has left the chat.
         break
 
