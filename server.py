@@ -2,6 +2,10 @@
 """Server for multithreaded (asynchronous) chat application."""
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
+from moviestore import MovieStore
+from movieview import MovieView
+from moviecontroller import MovieController
+from db import DB
 
 
 def accept_incoming_connections():
@@ -18,8 +22,8 @@ def handle_client(client):  # Takes client socket as argument.
     """Handles a single client connection."""
     name = client.recv(BUFSIZ).decode("utf8")
     clients[client] = name
-
-    while True:
+    quit = False
+    while quit == False:
         welcome = 'Welcome %s! If you ever want to quit, type {quit} to exit.' % name
         welcome += '\nBelow you can see a list of operation you can perform:'
         welcome += '\n1. Search for a movie'
@@ -30,26 +34,22 @@ def handle_client(client):  # Takes client socket as argument.
         client.send(bytes(welcome, "utf8"))
 
         msg = client.recv(BUFSIZ).decode("utf-8")
-        while msg != 'quit':
+        while True:
             if msg == '1':
                 client.send(bytes("Please enter the movie name you want to search: ", "utf8"))
                 search_string = client.recv(BUFSIZ).decode("utf8")
-                result = '1 match found with ' + search_string + ': Id: 101 - The Avengers'
+                result = movie_controller.search_movie(search_string)
                 result += '\nPlease enter the movie name you want to search or type Back to return to Home: '
                 client.send(bytes(result, "utf8"))
-                back = client.recv(BUFSIZ).decode("utf8")
-                while back != 'back':
-                    result = '1 match found with ' + search_string + ': Id: 101 - The Avengers'
+                next_search = client.recv(BUFSIZ).decode("utf8")
+                while next_search != 'back':
+                    result = movie_controller.search_movie(next_search)
                     result += '\nPlease enter the movie name you want to search or type Back to return to Home: '
                     client.send(bytes(result, "utf8"))
-                    back = client.recv(BUFSIZ).decode("utf8")
+                    next_search = client.recv(BUFSIZ).decode("utf8")
                 break
             elif msg == '2':
-                result = "Here is the list of movies you have rated: "
-                result += '\nForest Gump - 4.5'
-                result += '\nA Star is born - 4.0'
-                result += '\nWall Street - 5.0'
-                result += '\nFriends - 5.0'
+                result = movie_controller.get_rated_movies(1)
                 result += '\nSend any key to return to Home'
                 client.send(bytes(result, "utf8"))
                 back = client.recv(BUFSIZ).decode("utf8")
@@ -83,13 +83,16 @@ def handle_client(client):  # Takes client socket as argument.
                 client.send(bytes(result, "utf8"))
                 back = client.recv(BUFSIZ).decode("utf8")
                 break
+            elif msg == 'quit':
+                client.send(bytes('quit', "utf8"))
+                client.close()
+                del clients[client]
+                print(clients)
+                quit = True
+                break
             else:
                 break
-        client.send(bytes('quit', "utf8"))
-        client.close()
-        del clients[client]
-        print(clients)
-        break
+
 
 clients = {}
 addresses = {}
@@ -101,6 +104,11 @@ ADDR = (HOST, PORT)
 
 SERVER = socket(AF_INET, SOCK_STREAM)
 SERVER.bind(ADDR)
+
+db = DB()
+movie_store = MovieStore(db)
+movie_view = MovieView()
+movie_controller = MovieController(movie_store, movie_view)
 
 if __name__ == "__main__":
     SERVER.listen(5)
