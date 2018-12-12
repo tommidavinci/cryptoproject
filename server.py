@@ -1,6 +1,7 @@
-#!/usr/bin/env python3
-"""Server for multithreaded (asynchronous) chat application."""
+import nacl.secret
+import nacl.utils
 from socket import AF_INET, socket, SOCK_STREAM
+from nacl.public import PrivateKey, Box, PublicKey
 from threading import Thread
 from moviestore import MovieStore
 from movieview import MovieView
@@ -13,71 +14,94 @@ def accept_incoming_connections():
     while True:
         client, client_address = SERVER.accept()
         print("%s:%s has connected." % client_address)
-        client.send(bytes("Greetings from the movie database! Now type your username and press enter! We are very secure!", "utf8"))
+        skserver = PrivateKey.generate()
+        pkserver = skserver.public_key
+
+        client.send(bytes(pkserver))
+        client_publickey = PublicKey(client.recv(BUFSIZ))
+        server_client_box = Box(skserver, client_publickey)
+
+        nonce = nacl.utils.random(Box.NONCE_SIZE)
+        encrypted = server_client_box.encrypt(symmetric_secret_key, nonce)
+        client.send(bytes(encrypted))
+
+        encrypted = symmetric_secret_key_box_server.encrypt(bytes("Greetings from the cave! Now type your name and press enter!", "utf8"), nonce)
+        client.send(encrypted)
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).start()
 
 
 def handle_client(client):  # Takes client socket as argument.
     """Handles a single client connection."""
-    name = client.recv(BUFSIZ).decode("utf8")
+    name_encrypted = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ))
+    name = name_encrypted.decode('utf8')
+
     clients[client] = name
     quit = False
     while quit == False:
         welcome = 'Welcome %s! If you ever want to quit, type {quit} to exit.' % name
         welcome += '\nBelow you can see a list of operation you can perform:'
         welcome += '\n1. Search for a movie'
-        welcome += '\n2. List all the movies that you have rated'
+        welcome += '\n2. List all the movies that you have rated or reviewed'
         welcome += '\n3. List all the movies that has similar genres with a given movie'
-        welcome += '\n4. List all the movies that he might interested in\n'
+        welcome += '\n4. List all the movies that you might interested in'
+        welcome += '\n5. Rate a movie'
+        welcome += '\n6. Edit your rate for a movie'
+        welcome += '\n7. Delete your rate for a movie'
+        welcome += '\n8. Create a review for a movie'
+        welcome += '\n9. Edit your review for a movie'
+        welcome += '\n10. Delete your review for a movie'
+        welcome += '\n11. Create a user (Admin right)'
         welcome += '\nEnter your choice (number) - type "quit" to exit: '
-        client.send(bytes(welcome, "utf8"))
 
-        msg = client.recv(BUFSIZ).decode("utf-8")
+        #You can add as many functionalities as you want
+
+        client.send(symmetric_secret_key_box_server.encrypt(bytes(welcome, "utf8")))
+
+        msg = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
         while True:
             if msg == '1':
-                client.send(bytes("Please enter the movie name you want to search: ", "utf8"))
-                search_string = client.recv(BUFSIZ).decode("utf8")
+                client.send(symmetric_secret_key_box_server.encrypt(bytes("Please enter the movie name you want to search: ", "utf8")))
+                search_string = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
                 result = movie_controller.search_movie(search_string)
                 result += '\nPlease enter the movie name you want to search or type "back" to return to Home: '
-                client.send(bytes(result, "utf8"))
-                next_search = client.recv(BUFSIZ).decode("utf8")
+                client.send(symmetric_secret_key_box_server.encrypt(bytes(result, "utf8")))
+                next_search = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
                 while next_search != 'back':
                     result = movie_controller.search_movie(next_search)
                     result += '\nPlease enter the movie name you want to search or type "back" to return to Home: '
-                    client.send(bytes(result, "utf8"))
-                    next_search = client.recv(BUFSIZ).decode("utf8")
+                    client.send(symmetric_secret_key_box_server.encrypt(bytes(result, "utf8")))
+                    next_search = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
                 break
             elif msg == '2':
                 result = movie_controller.get_rated_movies(1)
                 result += '\nSend any key to return to Home'
-                client.send(bytes(result, "utf8"))
-                back = client.recv(BUFSIZ).decode("utf8")
+                client.send(symmetric_secret_key_box_server.encrypt(bytes(result, "utf8")))
+                back = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
                 break
             elif msg == '3':
-                client.send(bytes("Please enter a movie ID you want to find other similar movies to: ", "utf8"))
-                search_string = client.recv(BUFSIZ).decode("utf8")
+                client.send(symmetric_secret_key_box_server.encrypt(bytes("Please enter a movie ID you want to find other similar movies to: ", "utf8")))
+                search_string = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
                 result = movie_controller.get_similar_movies(search_string)
                 result += '\nPlease enter a movie ID you want to find other similar movies to' \
                           ' or type "back" to return to Home: '
-                client.send(bytes(result, "utf8"))
-                next_search = client.recv(BUFSIZ).decode("utf8")
+                client.send(symmetric_secret_key_box_server.encrypt(bytes(result, "utf8")))
+                next_search = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
                 while next_search != 'back':
-                    result = '2 match found with ' + search_string + ': '
-                    result += movie_controller.get_similar_movies(next_search)
+                    result = movie_controller.get_similar_movies(next_search)
                     result += '\nPlease enter a movie ID you want to find other similar movies to' \
                               ' or type "back" to return to Home: '
-                    client.send(bytes(result, "utf8"))
-                    next_search = client.recv(BUFSIZ).decode("utf8")
+                    client.send(symmetric_secret_key_box_server.encrypt(bytes(result, "utf8")))
+                    next_search = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
                 break
             elif msg == '4':
                 result = movie_controller.get_interested_movies(1)
                 result += '\nSend any key to return to Home'
-                client.send(bytes(result, "utf8"))
-                back = client.recv(BUFSIZ).decode("utf8")
+                client.send(symmetric_secret_key_box_server.encrypt(bytes(result, "utf8")))
+                back = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
                 break
             elif msg == 'quit':
-                client.send(bytes('quit', "utf8"))
+                client.send(symmetric_secret_key_box_server.encrypt(bytes("quit", "utf8")))
                 client.close()
                 del clients[client]
                 print(clients)
@@ -97,6 +121,9 @@ ADDR = (HOST, PORT)
 
 SERVER = socket(AF_INET, SOCK_STREAM)
 SERVER.bind(ADDR)
+
+symmetric_secret_key = nacl.utils.random(nacl.secret.SecretBox.KEY_SIZE)
+symmetric_secret_key_box_server = nacl.secret.SecretBox(symmetric_secret_key)
 
 db = DB()
 movie_store = MovieStore(db)
