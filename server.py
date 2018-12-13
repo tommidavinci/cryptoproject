@@ -10,6 +10,7 @@ from moviestore import MovieStore
 from movieview import MovieView
 from moviecontroller import MovieController
 from db import DB
+from encryption_functions import sign_and_encrypt, decrypt_and_verify
 
 
 def accept_incoming_connections():
@@ -32,16 +33,17 @@ def accept_incoming_connections():
         encrypted = server_client_box.encrypt(symmetric_secret_key, nonce)
         client.send(encrypted)
 
-        encrypted = symmetric_secret_key_box_server.encrypt(bytes("Greetings from the cave! Now type your name and press enter!", "utf8"), nonce)
+        encrypted = sign_and_encrypt(symmetric_secret_key_box_server, server_signing_key, "Greetings from the cave! Now type your name and press enter!")
         client.send(encrypted)
+
         addresses[client] = client_address
-        Thread(target=handle_client, args=(client,)).start()
+        Thread(target=handle_client, args=(client,client_verify_key)).start()
 
 
-def handle_client(client):  # Takes client socket as argument.
+def handle_client(client, client_verify_key):  # Takes client socket as argument.
     """Handles a single client connection."""
-    name_encrypted = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ))
-    name = name_encrypted.decode('utf8')
+    name_encrypted = client.recv(BUFSIZ)
+    name = decrypt_and_verify(symmetric_secret_key_box_server, client_verify_key, name_encrypted)
 
     clients[client] = name
     quit = False
@@ -63,52 +65,53 @@ def handle_client(client):  # Takes client socket as argument.
 
         #You can add as many functionalities as you want
 
-        client.send(symmetric_secret_key_box_server.encrypt(bytes(welcome, "utf8")))
+        client.send(sign_and_encrypt(symmetric_secret_key_box_server, server_signing_key, welcome))
 
-        msg = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
+        msg = decrypt_and_verify(symmetric_secret_key_box_server, client_verify_key, client.recv(BUFSIZ))
         while True:
             if msg == '1':
-                client.send(symmetric_secret_key_box_server.encrypt(bytes("Please enter the movie name you want to search: ", "utf8")))
-                search_string = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
+                client.send(sign_and_encrypt(symmetric_secret_key_box_server, server_signing_key, "Please enter the movie name you want to search: "))
+                search_string = decrypt_and_verify(symmetric_secret_key_box_server, client_verify_key, client.recv(BUFSIZ))
                 result = movie_controller.search_movie(search_string)
                 result += '\nPlease enter the movie name you want to search or type "back" to return to Home: '
-                client.send(symmetric_secret_key_box_server.encrypt(bytes(result, "utf8")))
-                next_search = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
+                client.send(sign_and_encrypt(symmetric_secret_key_box_server, server_signing_key, result))
+
+                next_search = decrypt_and_verify(symmetric_secret_key_box_server, client_verify_key, client.recv(BUFSIZ))
                 while next_search != 'back':
                     result = movie_controller.search_movie(next_search)
                     result += '\nPlease enter the movie name you want to search or type "back" to return to Home: '
-                    client.send(symmetric_secret_key_box_server.encrypt(bytes(result, "utf8")))
-                    next_search = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
+                    client.send(sign_and_encrypt(symmetric_secret_key_box_server, server_signing_key, result))
+                    next_search = decrypt_and_verify(symmetric_secret_key_box_server, client_verify_key, client.recv(BUFSIZ))
                 break
             elif msg == '2':
                 result = movie_controller.get_rated_movies(1)
                 result += '\nSend any key to return to Home'
-                client.send(symmetric_secret_key_box_server.encrypt(bytes(result, "utf8")))
-                back = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
+                client.send(sign_and_encrypt(symmetric_secret_key_box_server, server_signing_key, result))
+                back = decrypt_and_verify(symmetric_secret_key_box_server, client_verify_key, client.recv(BUFSIZ))
                 break
             elif msg == '3':
-                client.send(symmetric_secret_key_box_server.encrypt(bytes("Please enter a movie ID you want to find other similar movies to: ", "utf8")))
-                search_string = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
+                client.send(sign_and_encrypt(symmetric_secret_key_box_server, server_signing_key, "Please enter a movie ID you want to find other similar movies to: "))
+                search_string = decrypt_and_verify(symmetric_secret_key_box_server, client_verify_key, client.recv(BUFSIZ))
                 result = movie_controller.get_similar_movies(search_string)
                 result += '\nPlease enter a movie ID you want to find other similar movies to' \
                           ' or type "back" to return to Home: '
-                client.send(symmetric_secret_key_box_server.encrypt(bytes(result, "utf8")))
-                next_search = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
+                client.send(sign_and_encrypt(symmetric_secret_key_box_server, server_signing_key, result))
+                next_search = decrypt_and_verify(symmetric_secret_key_box_server, client_verify_key, client.recv(BUFSIZ))
                 while next_search != 'back':
                     result = movie_controller.get_similar_movies(next_search)
                     result += '\nPlease enter a movie ID you want to find other similar movies to' \
                               ' or type "back" to return to Home: '
-                    client.send(symmetric_secret_key_box_server.encrypt(bytes(result, "utf8")))
-                    next_search = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
+                    client.send(sign_and_encrypt(symmetric_secret_key_box_server, server_signing_key, result))
+                    next_search = decrypt_and_verify(symmetric_secret_key_box_server, client_verify_key, client.recv(BUFSIZ))
                 break
             elif msg == '4':
                 result = movie_controller.get_interested_movies(1)
                 result += '\nSend any key to return to Home'
-                client.send(symmetric_secret_key_box_server.encrypt(bytes(result, "utf8")))
-                back = symmetric_secret_key_box_server.decrypt(client.recv(BUFSIZ)).decode('utf8')
+                client.send(sign_and_encrypt(symmetric_secret_key_box_server, server_signing_key, result))
+                back = decrypt_and_verify(symmetric_secret_key_box_server, client_verify_key, client.recv(BUFSIZ))
                 break
             elif msg == 'quit':
-                client.send(symmetric_secret_key_box_server.encrypt(bytes("quit", "utf8")))
+                client.send(sign_and_encrypt(symmetric_secret_key_box_server, server_signing_key, "quit"))
                 client.close()
                 del clients[client]
                 print(clients)

@@ -5,6 +5,8 @@ import pickle
 from socket import AF_INET, socket, SOCK_STREAM
 from nacl.public import PrivateKey, Box, PublicKey
 from nacl.signing import VerifyKey
+from encryption_functions import sign_and_encrypt, decrypt_and_verify
+
 
 HOST = input('Enter host: ')
 if not HOST:
@@ -39,23 +41,24 @@ symmetric_privatekey = client_server_box.decrypt(symmetric_privatekey_bytes)
 symmetric_secret_key_box_client = nacl.secret.SecretBox(symmetric_privatekey)
 
 msg_encrypted = client_socket.recv(BUFSIZ)
-msg = symmetric_secret_key_box_client.decrypt(msg_encrypted)
-print(msg.decode("utf8"))
+msg = decrypt_and_verify(symmetric_secret_key_box_client, server_verify_key, msg_encrypted)
+print(msg)
 name = input()
-client_socket.send(symmetric_secret_key_box_client.encrypt(bytes(name, 'utf8')))
-
+client_socket.send(sign_and_encrypt(symmetric_secret_key_box_client, client_signing_key, name))
 
 while True:
     try:
         msg_encrypted = client_socket.recv(BUFSIZ)
-        msg = symmetric_secret_key_box_client.decrypt(msg_encrypted).decode("utf8")
+        msg = decrypt_and_verify(symmetric_secret_key_box_client, server_verify_key, msg_encrypted)
         print(msg)
         if msg == "quit":
             print("closing...")
             client_socket.close()
             break
         selection = input()
-        client_socket.send(symmetric_secret_key_box_client.encrypt(bytes(selection, 'utf8')))
+        encrypted = sign_and_encrypt(symmetric_secret_key_box_client, client_signing_key, selection)
+        client_socket.send(encrypted)
+
 
     except OSError:  # Possibly client has left the chat.
         break
