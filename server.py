@@ -1,6 +1,7 @@
 import nacl.secret
 import nacl.utils
 import nacl.signing
+import pickle
 from socket import AF_INET, socket, SOCK_STREAM
 from nacl.public import PrivateKey, Box, PublicKey
 from nacl.signing import VerifyKey
@@ -17,10 +18,14 @@ def accept_incoming_connections():
         client, client_address = SERVER.accept()
         print("%s:%s has connected." % client_address)
         
-        client.send(bytes(pkserver) + bytes(server_verify_key))
-        combined_key = client.recv(BUFSIZ)
-        client_publickey = PublicKey(combined_key[:32])
-        client_verify_key = VerifyKey(combined_key[32:])
+        client.send(pickle.dumps([bytes(pkserver), bytes(server_verify_key)]))
+        combined_key = pickle.loads(client.recv(BUFSIZ))
+        client_publickey = PublicKey(combined_key[0])
+        print("Received client public key: ")
+        print(client_publickey)
+        client_verify_key = VerifyKey(combined_key[1])
+        print("Received client verify key: ")
+        print(client_verify_key)
         server_client_box = Box(skserver, client_publickey)
 
         nonce = nacl.utils.random(Box.NONCE_SIZE)
@@ -126,9 +131,10 @@ SERVER.bind(ADDR)
 
 skserver = PrivateKey.generate()
 pkserver = skserver.public_key
+print(pkserver)
 server_signing_key = nacl.signing.SigningKey(bytes(skserver))
 server_verify_key = server_signing_key.verify_key
-
+print(server_verify_key)
 symmetric_secret_key = nacl.utils.random(nacl.secret.SecretBox.KEY_SIZE)
 symmetric_secret_key_box_server = nacl.secret.SecretBox(symmetric_secret_key)
 

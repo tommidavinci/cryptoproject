@@ -1,6 +1,7 @@
 import nacl.secret
 import nacl.utils
 import nacl.signing
+import pickle
 from socket import AF_INET, socket, SOCK_STREAM
 from nacl.public import PrivateKey, Box, PublicKey
 from nacl.signing import VerifyKey
@@ -26,12 +27,12 @@ client_verify_key = client_signing_key.verify_key
 client_socket = socket(AF_INET, SOCK_STREAM)
 client_socket.connect(ADDR)
 
-combined_key = client_socket.recv(BUFSIZ)
-server_publickey = PublicKey(combined_key[:32])
-server_verify_key = VerifyKey(combined_key[32:])
+combined_key = pickle.loads(client_socket.recv(BUFSIZ))
+server_publickey = PublicKey(combined_key[0])
+server_verify_key = VerifyKey(combined_key[1])
 client_server_box = Box(skclient, server_publickey)
 
-client_socket.send(bytes(pkclient) + bytes(client_verify_key))
+client_socket.send(pickle.dumps([bytes(pkclient), bytes(client_verify_key)]))
 
 symmetric_privatekey_bytes = client_socket.recv(BUFSIZ)
 symmetric_privatekey = client_server_box.decrypt(symmetric_privatekey_bytes)
