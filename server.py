@@ -1,7 +1,9 @@
 import nacl.secret
 import nacl.utils
+import nacl.signing
 from socket import AF_INET, socket, SOCK_STREAM
 from nacl.public import PrivateKey, Box, PublicKey
+from nacl.signing import VerifyKey
 from threading import Thread
 from moviestore import MovieStore
 from movieview import MovieView
@@ -14,16 +16,16 @@ def accept_incoming_connections():
     while True:
         client, client_address = SERVER.accept()
         print("%s:%s has connected." % client_address)
-        skserver = PrivateKey.generate()
-        pkserver = skserver.public_key
-
-        client.send(bytes(pkserver))
-        client_publickey = PublicKey(client.recv(BUFSIZ))
+        
+        client.send(bytes(pkserver) + bytes(server_verify_key))
+        combined_key = client.recv(BUFSIZ)
+        client_publickey = PublicKey(combined_key[:32])
+        client_verify_key = VerifyKey(combined_key[32:])
         server_client_box = Box(skserver, client_publickey)
 
         nonce = nacl.utils.random(Box.NONCE_SIZE)
         encrypted = server_client_box.encrypt(symmetric_secret_key, nonce)
-        client.send(bytes(encrypted))
+        client.send(encrypted)
 
         encrypted = symmetric_secret_key_box_server.encrypt(bytes("Greetings from the cave! Now type your name and press enter!", "utf8"), nonce)
         client.send(encrypted)
@@ -121,6 +123,11 @@ ADDR = (HOST, PORT)
 
 SERVER = socket(AF_INET, SOCK_STREAM)
 SERVER.bind(ADDR)
+
+skserver = PrivateKey.generate()
+pkserver = skserver.public_key
+server_signing_key = nacl.signing.SigningKey(bytes(skserver))
+server_verify_key = server_signing_key.verify_key
 
 symmetric_secret_key = nacl.utils.random(nacl.secret.SecretBox.KEY_SIZE)
 symmetric_secret_key_box_server = nacl.secret.SecretBox(symmetric_secret_key)
