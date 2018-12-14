@@ -24,7 +24,7 @@ class DB:
 
     def query(self, sql):
         if not self.conn:
-            conn = self.connect()
+            self.conn = self.connect()
         cur = self.conn.cursor()
         cur.execute(sql)
         records = cur.fetchall()
