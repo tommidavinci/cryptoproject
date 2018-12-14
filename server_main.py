@@ -6,10 +6,10 @@ from socket import AF_INET, socket, SOCK_STREAM
 from nacl.public import PrivateKey, Box, PublicKey
 from nacl.signing import VerifyKey
 from threading import Thread
-from server.models.moviestore import MovieStore
-from server.views.movieview import MovieView
-from server.controllers.moviecontroller import MovieController
-from server.database.db import DB
+from models.moviestore import MovieStore
+from views.movieview import MovieView
+from controllers.moviecontroller import MovieController
+from database.db import DB
 from common_functions import sign_and_encrypt, decrypt_and_verify
 
 
