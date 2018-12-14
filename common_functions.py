@@ -1,9 +1,3 @@
-import nacl.encoding
-import nacl.signing
-import nacl.secret
-import nacl.utils
-from nacl.public import PrivateKey, Box, PublicKey
-
 def sign_and_encrypt(symmetric_box, signing_key, plain_text):
     signed = signing_key.sign(bytes(plain_text, "utf8"))
     encrypted_text = symmetric_box.encrypt(signed)

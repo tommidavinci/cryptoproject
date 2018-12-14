@@ -1,6 +1,5 @@
 import psycopg2
-from config import config
-import pprint
+from server.database.config import config
 
 
 class DB:

@@ -5,7 +5,7 @@ import pickle
 from socket import AF_INET, socket, SOCK_STREAM
 from nacl.public import PrivateKey, Box, PublicKey
 from nacl.signing import VerifyKey
-from encryption_functions import sign_and_encrypt, decrypt_and_verify
+from common_functions import sign_and_encrypt, decrypt_and_verify
 
 
 HOST = input('Enter host: ')
