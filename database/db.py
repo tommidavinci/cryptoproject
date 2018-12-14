@@ -1,5 +1,5 @@
 import psycopg2
-from server.database.config import config
+from database.config import config
 
 
 class DB:
