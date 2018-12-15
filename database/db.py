@@ -38,4 +38,5 @@ class DB:
         cur.execute(sql, params)
         records = cur.fetchall()
         cur.close()
+        self.conn.commit()
         return records

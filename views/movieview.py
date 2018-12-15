@@ -26,3 +26,26 @@ class MovieView:
         for movie in movies:
             result += "Movie Id: {0}   -  Movie Name: {1}\n".format(movie[0], movie[1])
         return result
+
+    def print_user_functions(self, userName):
+        welcome = '\nBelow you can see a list of operation you can perform:'
+        welcome += '\n1. Search for a movie'
+        welcome += '\n2. List all the movies that you have rated or reviewed'
+        welcome += '\n3. List all the movies that has similar genres with a given movie'
+        welcome += '\n4. List all the movies that you might interested in'
+        welcome += '\n5. Rate a movie'
+        welcome += '\n6. Edit your rate for a movie'
+        welcome += '\n7. Delete your rate for a movie'
+        welcome += '\n8. Create a review for a movie'
+        welcome += '\n9. Edit your review for a movie'
+        welcome += '\n10. Delete your review for a movie'
+        welcome += '\n11. Create a user (Admin right)'
+        welcome += '\nEnter your choice (number) - type "quit" to exit: '
+        return welcome
+
+    def print_anon_functions(self):
+        welcome = '\nBelow you can see a list of operation you can perform:'
+        welcome += '\n1. Search for a movie'
+        welcome += '\n3. List all the movies that has similar genres with a given movie'
+        welcome += '\nEnter your choice (number) - type "quit" to exit: '
+        return welcome

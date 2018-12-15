@@ -47,32 +47,44 @@ def accept_incoming_connections():
 def handle_client(client, client_verify_key, box):  # Takes client socket as argument.
     """Handles a single client connection."""
     quit = False
+    userId = 0
+    userName = "Anon"
     ##name_encrypted = client.recv(BUFSIZ)
     ##name = decrypt_and_verify(symmetric_secret_key_box_server, client_verify_key, name_encrypted)
 
   ## User Functionality
+    #while quit == False:
     while quit == False:
         client.send(sign_and_encrypt(box, server_signing_key, '1. Login\n2. Signup:\n3. Anon'))
         msg = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
 
-        while quit == False:
-            if msg == '3':
-                quit = True
-                break
+        if msg == '3':
+            quit = True
+            break
 
-            client.send(sign_and_encrypt(box, server_signing_key, 'Username: '))
-            username = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
-            client.send(sign_and_encrypt(box, server_signing_key, 'Password: '))
-            password = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
-    
-            if msg == '1':
-                result = user_controller.login(username, password)
-                if result == 0:
-                    quit = True
-            elif msg == '2':
-                result = user_controller.signup(username, password)
-                if result == 0:
-                    quit = True
+        client.send(sign_and_encrypt(box, server_signing_key, 'Username: '))
+        username = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+        client.send(sign_and_encrypt(box, server_signing_key, 'Password: '))
+        password = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+
+        if msg == '1':
+            result = user_controller.login(username, password)
+            if result is not None:
+                userId = result
+                userName = username
+                quit = True
+            #else:
+                
+
+        elif msg == '2':
+            result = user_controller.signup(username, password)
+            if result is not None:
+                userId = result
+                userName = username
+                quit = True
+            #else:
+            # else;
+                ## username exists already? or just failed
            
 
 
@@ -80,22 +92,11 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
     ##clients[client] = name
     quit = False
     while quit == False:
-       ## welcome = 'Welcome %s! If you ever want to quit, type {quit} to exit.' % name
-        welcome = '\nBelow you can see a list of operation you can perform:'
-        welcome += '\n1. Search for a movie'
-        welcome += '\n2. List all the movies that you have rated or reviewed'
-        welcome += '\n3. List all the movies that has similar genres with a given movie'
-        welcome += '\n4. List all the movies that you might interested in'
-        welcome += '\n5. Rate a movie'
-        welcome += '\n6. Edit your rate for a movie'
-        welcome += '\n7. Delete your rate for a movie'
-        welcome += '\n8. Create a review for a movie'
-        welcome += '\n9. Edit your review for a movie'
-        welcome += '\n10. Delete your review for a movie'
-        welcome += '\n11. Create a user (Admin right)'
-        welcome += '\nEnter your choice (number) - type "quit" to exit: '
-
-        #You can add as many functionalities as you want
+        welcome = ""
+        if userId == 0:
+            welcome = movie_view.print_anon_functions()
+        else:
+            welcome = movie_view.print_user_functions(userName)
 
         client.send(sign_and_encrypt(box, server_signing_key, welcome))
 
