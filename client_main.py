@@ -20,6 +20,7 @@ else:
 BUFSIZ = 4096
 ADDR = (HOST, PORT)
 
+# Asymmetric
 skclient = PrivateKey.generate()
 pkclient = skclient.public_key
 client_signing_key = nacl.signing.SigningKey(bytes(skclient))
@@ -29,6 +30,7 @@ client_verify_key = client_signing_key.verify_key
 client_socket = socket(AF_INET, SOCK_STREAM)
 client_socket.connect(ADDR)
 
+
 combined_key = pickle.loads(client_socket.recv(BUFSIZ))
 server_publickey = PublicKey(combined_key[0])
 server_verify_key = VerifyKey(combined_key[1])
@@ -36,6 +38,7 @@ client_server_box = Box(skclient, server_publickey)
 
 client_socket.send(pickle.dumps([bytes(pkclient), bytes(client_verify_key)]))
 
+# Symmetric
 symmetric_privatekey_bytes = client_socket.recv(BUFSIZ)
 symmetric_privatekey = client_server_box.decrypt(symmetric_privatekey_bytes)
 symmetric_secret_key_box_client = nacl.secret.SecretBox(symmetric_privatekey)

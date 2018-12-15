@@ -56,6 +56,10 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
         msg = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
 
         while quit == False:
+            if msg == '3':
+                quit = True
+                break
+
             client.send(sign_and_encrypt(box, server_signing_key, 'Username: '))
             username = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
             client.send(sign_and_encrypt(box, server_signing_key, 'Password: '))
@@ -69,8 +73,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                 result = user_controller.signup(username, password)
                 if result == 0:
                     quit = True
-            elif msg == '3':
-                quit = True
+           
 
 
     ## Server functionality    
