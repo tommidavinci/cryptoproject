@@ -52,26 +52,30 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
 
   ## User Functionality
     while quit == False:
-        client.send(sign_and_encrypt(box, server_signing_key, '1. Login\n2.Signup: '))
+        client.send(sign_and_encrypt(box, server_signing_key, '1. Login\n2. Signup:\n3. Anon'))
         msg = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
-        if msg == '1':
-            while quit == False:
-                client.send(sign_and_encrypt(box, server_signing_key, 'Username: '))
-                ##(box.encrypt(bytes('Username: ', 'utf8')))
-                username = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
-                client.send(sign_and_encrypt(box, server_signing_key, 'Password: '))
-                password = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
-                print(username,password)
+
+        while quit == False:
+            client.send(sign_and_encrypt(box, server_signing_key, 'Username: '))
+            username = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+            client.send(sign_and_encrypt(box, server_signing_key, 'Password: '))
+            password = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+    
+            if msg == '1':
                 result = user_controller.login(username, password)
-                if result > 0:
-                    break
-            break
-        elif msg == '2':
-            print('Not possible at the moment')
-            break
+                if result == 0:
+                    quit = True
+            elif msg == '2':
+                result = user_controller.signup(username, password)
+                if result == 0:
+                    quit = True
+            elif msg == '3':
+                quit = True
+
 
     ## Server functionality    
     ##clients[client] = name
+    quit = False
     while quit == False:
        ## welcome = 'Welcome %s! If you ever want to quit, type {quit} to exit.' % name
         welcome = '\nBelow you can see a list of operation you can perform:'
@@ -167,9 +171,12 @@ db = DB()
 movie_store = MovieStore(db)
 movie_view = MovieView()
 movie_controller = MovieController(movie_store, movie_view)
-user__store = UserStore(db)
+user_store = UserStore(db)
 user_view = UserView()
-user_controller = UserController(user__store, user_view)
+user_controller = UserController(user_store, user_view)
+
+for res in user_store.test():
+    print(res)
 
 
 if __name__ == "__main__":

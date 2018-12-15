@@ -8,5 +8,5 @@ class UserController:
         return 0
 
     def signup(self, username, password):
-        result = self.user_store(username,password)
+        result = self.user_store.signup(username,password)
         return 0
