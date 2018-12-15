@@ -6,7 +6,7 @@ class MovieView:
     def print_movies(self, movie_name, movies):
         result = "Found movies that is similar to search string {0}\n".format(movie_name)
         for movie in movies:
-            result += "Movie Id: {0}   -  Movie Name: {1}\n".format(movie[0], movie[1])
+            result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}\n".format(movie[0], movie[1], movie[2])
         return result
 
     def print_get_rated_movies(self, user_id, movies):

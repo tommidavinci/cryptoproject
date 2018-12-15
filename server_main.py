@@ -102,7 +102,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
         msg = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
         while True:
             if msg == '1':
-                client.send(sign_and_encrypt(box, server_signing_key, "Please enter the movie name you want to search: "))
+                client.send(sign_and_encrypt(box, server_signing_key, "Please enter the movie name you want to search:\nTo specify year user --year\nExample: star wars --year 2018 "))
                 search_string = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 result = movie_controller.search_movie(search_string)
                 result += '\nPlease enter the movie name you want to search or type "back" to return to Home: '
