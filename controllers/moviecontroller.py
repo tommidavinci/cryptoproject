@@ -17,6 +17,14 @@ class MovieController:
         self.current_movie_list = result
         return movies
 
+    def get_precise_interested_movies(self, user_id):
+        result = self.movie_store.get_precise_interested_movies(user_id)
+        if not result:
+            error = self.movie_view.print_error("Could not find any movies that might be of interest to " + user_id)
+            return error
+        movies = self.movie_view.print_get_interested_movies(result)
+        return movies
+
     def get_rated_movies(self, user_id):
         result = self.movie_store.get_movies_rated_by_user(user_id)
         if not result:
@@ -31,14 +39,6 @@ class MovieController:
             error = self.movie_view.print_error("Could not find any movies that is similar to movie with " + movie_id)
             return error
         movies = self.movie_view.print_get_similar_movies(movie_id, result)
-        return movies
-
-    def get_interested_movies(self, user_id):
-        result = self.movie_store.get_interested_movies(user_id)
-        if not result:
-            error = self.movie_view.print_error("Could not find any movies that you are interested in")
-            return error
-        movies = self.movie_view.print_get_interested_movies(user_id, result)
         return movies
 
     def set_movie_rating(self, user_id, movie_id, rating):

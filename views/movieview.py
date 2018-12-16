@@ -21,10 +21,10 @@ class MovieView:
             result += "Movie Id: {0}   -  Movie Name: {1}\n".format(movie[0], movie[1])
         return result
 
-    def print_get_interested_movies(self, user_id, movies):
+    def print_get_interested_movies(self, movies):
         result = "Found movies that you might get interested:\n"
         for movie in movies:
-            result += "Movie Id: {0}   -  Movie Name: {1}\n".format(movie[0], movie[1])
+            result += "Movie Id: {0}   -  Movie Name: {1}   -  Movie Year: {2}\n".format(movie[0], movie[1], movie[2])
         return result
     
     def print_set_movie_rating(self, movies):

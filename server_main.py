@@ -134,7 +134,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     next_search = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 break
             ## User only functions
-            if userId > 9:
+            if userId > 0:
                 if msg == '3':
                     result = movie_controller.get_rated_movies(1)
                     result += '\nSend any key to return to Home'
@@ -142,13 +142,13 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                     break
                 elif msg == '4':
-                    result = movie_controller.get_interested_movies(1)
+                    result = movie_controller.get_precise_interested_movies(1)
                     result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                     break
                 elif msg == '6':
-                    result = movie_controller.set_movie_rating(1, 1, 2,5)
+                    result = movie_controller.set_movie_rating(1, 1, 2.5)
                     result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))

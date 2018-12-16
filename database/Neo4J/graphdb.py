@@ -28,8 +28,45 @@ class neo4jDB(object):
             return rating
     @staticmethod
     def _get_movies_rated_by_user(tx, userId):
-        result = tx.run("MATCH (u:User {id:$userId})-[r:RATED]->(m:Movie) "
-                        "RETURN r.rating, m.id", userId=userId)
+        result = tx.run("""MATCH (u:User {id:$userId})-[r:RATED]->(m:Movie) 
+                        RETURN r.rating, m.id""", userId=userId)
+        return result
+    
+    def get_movies_from_users_not_rated_by_x(self, userId, resultset):
+        userArr = []
+        for record in resultset:
+            userArr.append(record['to'])
+        with self._driver.session() as session:
+            result = session.read_transaction(self._get_movies_from_users_not_rated_by_x, userId, userArr)
+            return result
+    @staticmethod
+    def _get_movies_from_users_not_rated_by_x(tx, userId, userArr):
+        result = tx.run("""
+            MATCH (u:User)-[r:RATED]->(m:Movie)
+                WHERE u.id IN $userArr AND r.rating >= 4.5 AND NOT (:User {id:$userId})-[:RATED]->(m)
+            RETURN m.id""", userId=userId, userArr=userArr)
+        return result
+    
+    def get_precise_similar_users(self, userId):
+        with self._driver.session() as session:
+            result = session.read_transaction(self._get_precise_interested_movies, userId)
+            return result
+    @staticmethod
+    def _get_precise_interested_movies(tx, userId):
+        result = tx.run("""
+            MATCH (u:User {id:$userId})-->(m:Movie)
+            WITH u, collect(DISTINCT m.id) as movieIds, toFloat(count(DISTINCT m)) AS movies
+            MATCH (u)-[a:RATED]->(m:Movie)<-[b:RATED]-(xu:User) WHERE a.rating > 4 AND b.rating = a.rating
+            WITH u, collect(DISTINCT xu.id) + u.id as userIds, movies, movieIds
+            MATCH (m:Movie), (x:User) 
+                WHERE x.id IN userIds AND m.id IN movieIds AND (size((u)-->(:Movie)<--(x)) > (movies / 10) * 8 OR x.id = 1)
+            OPTIONAL MATCH (x)-[r:RATED]->(m)
+            WITH x, {item:x.id, weights: collect(coalesce(r.rating,0))} AS userData
+            WITH collect(userData) AS data
+            CALL algo.similarity.cosine.stream(data)
+            YIELD item1, item2, count1, count2, similarity WHERE item1 = $userId OR item2 = $userId
+            RETURN item1 AS from, item2 AS to, similarity
+            ORDER BY similarity DESC LIMIT 10""", userId=userId)
         return result
 
     def set_movie_rating(self, userId, movieId, rating):
@@ -38,9 +75,9 @@ class neo4jDB(object):
             return rating
     @staticmethod
     def _set_movie_rating(tx, userId, movieId, rating):
-        result = tx.run("MERGE (:User {id:$userId})-[r:RATED]->(m:Movie {id:$movieId}) " + 
-                        "ON CREATE SET r.rating = $rating ON MATCH SET r.rating = $rating " + 
-                        "RETURN m, r", userId=userId, movieId=movieId, rating=rating)
+        result = tx.run("""MERGE (:User {id:$userId})-[r:RATED]->(m:Movie {id:$movieId}) 
+                        ON CREATE SET r.rating = $rating ON MATCH SET r.rating = $rating 
+                        RETURN m, r""", userId=userId, movieId=movieId, rating=rating)
         return result
 
     """def print_greeting(self, message):

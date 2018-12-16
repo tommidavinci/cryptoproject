@@ -14,6 +14,23 @@ class MovieStore:
 
 
     ## User
+    def get_precise_interested_movies(self, user_id):
+        prelimResult = self.graphdb.get_precise_similar_users(user_id)
+        recommended_movies = self.graphdb.get_movies_from_users_not_rated_by_x(user_id, prelimResult)
+        result = []
+        import random
+        for num in range(20):
+            result.append(recommended_movies._records[random.randint(0, len(recommended_movies._records))]['m.id'])
+            print(result[num])
+        stringResult = []
+        for res in result:
+            stringResult.append(str(res))
+        result = self.db.query("select * from get_movies(array[" + ','.join(stringResult) + "])")
+        return result
+
+        
+            
+
     def get_rated_movies(self, user_id):
         ratings = self.graphdb.get_movies_rated_by_user(user_id)
         sqlLookup = ""
@@ -21,11 +38,11 @@ class MovieStore:
         for record in ratings:
             sqlLookup += "" + str(record['m.id']) + ','
             result.append(['', "", "", record["r.rating"]])
-        movieNamesAndYear = self.db.query("select * from get_movies(array["+ sqlLookup.rstrip(',') +"])")
-        for movie, res in movieNamesAndYear, result:
-            res[0] = movie[0]
-            res[1] = movie[1]
-            res[2] = movie[2]
+        movies = self.db.query("select * from get_movies(array["+ sqlLookup.rstrip(',') +"])")
+        for i in range(len(result)):
+            result[i][0] = movies[i][0]
+            result[i][1] = movies[i][1]
+            result[i][2] = movies[i][2]
         return result
    
     def get_interested_movies(self, user_id):
