@@ -8,9 +8,8 @@ class MovieStore:
         #result = self.db.query("SELECT movie_id, title FROM movies WHERE to_tsvector('english',title) @@ '" + movie_name + "' LIMIT 10;")
         return self.db.query_with_params("select * from search_movie_title(%s, %s, %s)", (movie_name, year, limit))
 
-    def get_similar_movies(self, movie_id, limit = 10):
+    def get_similar_movies_by_genre(self, movie_id, limit = 10):
         return self.db.query_with_params("select * from recommend_movie_by_genre(%s,%s)",(movie_id, limit))
-
 
     ## User
     def get_rated_movies(self, user_id):

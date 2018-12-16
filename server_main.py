@@ -120,13 +120,13 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
             elif msg == '2':
                 client.send(sign_and_encrypt(box, server_signing_key, "Please enter a movie ID you want to find other similar movies to: "))
                 search_string = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
-                result = movie_controller.get_similar_movies(search_string)
+                result = movie_controller.get_similar_movies_by_genre(search_string)
                 result += '\nPlease enter a movie ID you want to find other similar movies to' \
                           ' or type "back" to return to Home: '
                 client.send(sign_and_encrypt(box, server_signing_key, result))
                 next_search = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 while next_search != 'back':
-                    result = movie_controller.get_similar_movies(next_search)
+                    result = movie_controller.get_similar_movies_by_genre(next_search)
                     result += '\nPlease enter a movie ID you want to find other similar movies to' \
                               ' or type "back" to return to Home: '
                     client.send(sign_and_encrypt(box, server_signing_key, result))
@@ -155,6 +155,8 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     break
                 else:
                     break
+            else:
+                break
 
 
 clients = {}
