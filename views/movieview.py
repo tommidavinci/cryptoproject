@@ -28,13 +28,14 @@ class MovieView:
         return result
 
     def print_user_functions(self, userName):
-        welcome = '\nBelow you can see a list of operation you can perform:'
+        welcome = '\nWelcome {}'.format(userName)
+        welcome += '\nBelow you can see a list of operation you can perform:'
         welcome += '\n1. Search for a movie'
-        welcome += '\n2. List all the movies that you have rated or reviewed'
-        welcome += '\n3. List all the movies that has similar genres with a given movie'
-        welcome += '\n4. List all the movies that you might interested in'
-        welcome += '\n5. Rate a movie'
-        welcome += '\n6. Edit your rate for a movie'
+        welcome += '\n2. List all the movies that has similar genres with a given movie'
+        welcome += '\n3. List all the movies that you have rated or reviewed' 
+        welcome += '\n4. List all the movies that you might interested in' #?
+        welcome += '\n5. Rate a movie' # c rating
+        welcome += '\n6. Edit your rate for a movie' 
         welcome += '\n7. Delete your rate for a movie'
         welcome += '\n8. Create a review for a movie'
         welcome += '\n9. Edit your review for a movie'
@@ -43,9 +44,10 @@ class MovieView:
         welcome += '\nEnter your choice (number) - type "quit" to exit: '
         return welcome
 
-    def print_anon_functions(self):
+    def print_anon_functions(self, userName):
+        welcome = '\nWelcome {}'.format(userName)
         welcome = '\nBelow you can see a list of operation you can perform:'
         welcome += '\n1. Search for a movie'
-        welcome += '\n3. List all the movies that has similar genres with a given movie'
+        welcome += '\n2. List all the movies that has similar genres with a given movie'
         welcome += '\nEnter your choice (number) - type "quit" to exit: '
         return welcome

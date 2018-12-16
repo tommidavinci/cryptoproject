@@ -60,28 +60,29 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
 
         if msg == '3':
             quit = True
-            break
+        else:
+            client.send(sign_and_encrypt(box, server_signing_key, 'Username: '))
+            username = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+            client.send(sign_and_encrypt(box, server_signing_key, 'Password: '))
+            password = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
 
-        client.send(sign_and_encrypt(box, server_signing_key, 'Username: '))
-        username = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
-        client.send(sign_and_encrypt(box, server_signing_key, 'Password: '))
-        password = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
-
-        if msg == '1':
-            result = user_controller.login(username, password)
-            if result is not None:
-                userId = result
-                userName = username
-                quit = True
-            #else:
-                
-
-        elif msg == '2':
-            result = user_controller.signup(username, password)
-            if result is not None:
-                userId = result
-                userName = username
-                quit = True
+            if msg == '1':
+                #client.send(sign_and_encrypt(box, server_signing_key, '...Logging in...'))
+                result = user_controller.login(username, password)
+                if result is not None:
+                    userId = result
+                    userName = username
+                    quit = True
+                else:
+                    client.send
+                    
+            elif msg == '2':
+                #client.send(sign_and_encrypt(box, server_signing_key, '...Signing up...'))
+                result = user_controller.signup(username, password)
+                if result is not None:
+                    userId = result
+                    userName = username
+                    quit = True
             #else:
             # else;
                 ## username exists already? or just failed
@@ -94,7 +95,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
     while quit == False:
         welcome = ""
         if userId == 0:
-            welcome = movie_view.print_anon_functions()
+            welcome = movie_view.print_anon_functions(userName)
         else:
             welcome = movie_view.print_user_functions(userName)
 
@@ -117,12 +118,6 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     next_search = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 break
             elif msg == '2':
-                result = movie_controller.get_rated_movies(1)
-                result += '\nSend any key to return to Home'
-                client.send(sign_and_encrypt(box, server_signing_key, result))
-                back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
-                break
-            elif msg == '3':
                 client.send(sign_and_encrypt(box, server_signing_key, "Please enter a movie ID you want to find other similar movies to: "))
                 search_string = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 result = movie_controller.get_similar_movies(search_string)
@@ -137,21 +132,29 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     next_search = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 break
-            elif msg == '4':
-                result = movie_controller.get_interested_movies(1)
-                result += '\nSend any key to return to Home'
-                client.send(sign_and_encrypt(box, server_signing_key, result))
-                back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
-                break
-            elif msg == 'quit':
-                client.send(sign_and_encrypt(box, server_signing_key, "quit"))
-                client.close()
-                del clients[client]
-                print(clients)
-                quit = True
-                break
-            else:
-                break
+            ## User only functions
+            if userId > 9:
+                if msg == '3':
+                    result = movie_controller.get_rated_movies(1)
+                    result += '\nSend any key to return to Home'
+                    client.send(sign_and_encrypt(box, server_signing_key, result))
+                    back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+                    break
+                elif msg == '4':
+                    result = movie_controller.get_interested_movies(1)
+                    result += '\nSend any key to return to Home'
+                    client.send(sign_and_encrypt(box, server_signing_key, result))
+                    back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+                    break
+                elif msg == 'quit':
+                    client.send(sign_and_encrypt(box, server_signing_key, "quit"))
+                    client.close()
+                    del clients[client]
+                    print(clients)
+                    quit = True
+                    break
+                else:
+                    break
 
 
 clients = {}
