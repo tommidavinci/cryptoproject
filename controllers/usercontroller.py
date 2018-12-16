@@ -4,9 +4,8 @@ class UserController:
         self.user_view = user_view
 
     def login(self, username, password):
-        result = self.user_store.login(username,password)
-        return 0
+        return self.user_store.login(username,password)
+        
 
     def signup(self, username, password):
-        result = self.user_store(username,password)
-        return 0
+        return self.user_store.signup(username,password)

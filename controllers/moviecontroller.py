@@ -4,7 +4,13 @@ class MovieController:
         self.movie_view = movie_view
 
     def search_movie(self, movie_name):
-        result = self.movie_store.search_movie(movie_name)
+        m_y = movie_name.split('--year ')
+        if (len(m_y) > 1):
+            result = self.movie_store.search_movie(m_y[0].strip(), m_y[1].strip())
+        else:
+            result = self.movie_store.search_movie(movie_name.strip())
+
+
         if not result:
             error = self.movie_view.print_error("Could not find any movie similar to " + movie_name)
             return error

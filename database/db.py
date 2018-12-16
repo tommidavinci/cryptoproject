@@ -30,3 +30,22 @@ class DB:
         records = cur.fetchall()
         cur.close()
         return records
+
+    def query_with_params(self, sql, params):
+        if not self.conn:
+            self.conn = self.connect()
+        cur = self.conn.cursor()
+        cur.execute(sql, params)
+        records = cur.fetchall()
+        cur.close()
+        self.conn.commit()
+        return records
+
+    def execute(self, sql, params):
+        if not self.conn:
+            self.conn = self.connect()
+        cur = self.conn.cursor()
+        cur.execute(sql, params)
+        #records = cur.fetchall()
+        cur.close()
+        self.conn.commit()
