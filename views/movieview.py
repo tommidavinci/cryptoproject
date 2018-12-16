@@ -9,10 +9,10 @@ class MovieView:
             result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}\n".format(movie[0], movie[1], movie[2])
         return result
 
-    def print_get_rated_movies(self, user_id, movies):
+    def print_get_rated_movies(self, movies):
         result = "Found movies that you have rated: \n"
         for movie in movies:
-            result += "Movie Id: {0}   -  Movie Name: {1}\n".format(movie[0], movie[1])
+            result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}   -  Rating: {3}\n".format(movie[0], movie[1], movie[2], movie[3])
         return result
 
     def print_get_similar_movies(self, movie_id, movies):
@@ -25,6 +25,12 @@ class MovieView:
         result = "Found movies that you might get interested:\n"
         for movie in movies:
             result += "Movie Id: {0}   -  Movie Name: {1}\n".format(movie[0], movie[1])
+        return result
+    
+    def print_set_movie_rating(self, movies):
+        result = "Rated movie: \n"
+        for movie in movies:
+            result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}   -  Rating: {3}\n".format(movie[0], movie[1], movie[2], movie[3])
         return result
 
     def print_user_functions(self, userName):
