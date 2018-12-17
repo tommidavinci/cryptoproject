@@ -16,6 +16,14 @@ class MovieController:
         movies = self.movie_view.print_movies(movie_name, result)
         self.current_movie_list = result
         return movies
+    
+    def delete_movie_rating(self, user_id, movie_id):
+        result = self.movie_store.delete_movie_rating(user_id, movie_id)
+        if not result:
+            error = self.movie_view.print_error("Could not delete the rating of the movie")
+            return error
+        movies = self.movie_view.print_delete_movie_rating(result)
+        return movies
 
     def get_precise_interested_movies(self, user_id):
         result = self.movie_store.get_precise_interested_movies(user_id)
@@ -26,7 +34,7 @@ class MovieController:
         return movies
 
     def get_rated_movies(self, user_id):
-        result = self.movie_store.get_movies_rated_by_user(user_id)
+        result = self.movie_store.get_rated_movies(user_id)
         if not result:
             error = self.movie_view.print_error("Could not find any movies that is rated by " + user_id)
             return error

@@ -20,7 +20,8 @@ class neo4jDB(object):
             return test
     @staticmethod
     def _test(tx):
-        return tx.run("MATCH (m:Movie {id:1}) RETURN m.id").single()[0]
+        return tx.run("""
+            MATCH (m:Movie {id:1}) RETURN m.id""").single()[0]
     
     def get_movies_rated_by_user(self, userId):
         with self._driver.session() as session:
@@ -28,9 +29,21 @@ class neo4jDB(object):
             return rating
     @staticmethod
     def _get_movies_rated_by_user(tx, userId):
-        result = tx.run("""MATCH (u:User {id:$userId})-[r:RATED]->(m:Movie) 
-                        RETURN r.rating, m.id""", userId=userId)
+        result = tx.run("""
+            MATCH (u:User {id:$userId})-[r:RATED]->(m:Movie) 
+            RETURN r.rating, m.id""", userId=userId)
         return result
+    
+    def delete_movie_rating(self, userId, movieId):
+        with self._driver.session() as session:
+            rating = session.write_transaction(self._delete_movie_rating, userId, movieId)
+            return rating
+    @staticmethod
+    def _delete_movie_rating(tx, userId, movieId):
+        tx.run("""
+            MATCH (:User{id:$userId})-[r:RATED]->(:Movie{id:$movieId})
+            DELETE r""", userId=userId, movieId=movieId)
+        return ""
     
     def get_movies_from_users_not_rated_by_x(self, userId, resultset):
         userArr = []
@@ -65,7 +78,7 @@ class neo4jDB(object):
             WITH collect(userData) AS data
             CALL algo.similarity.cosine.stream(data)
             YIELD item1, item2, count1, count2, similarity WHERE item1 = $userId OR item2 = $userId
-            RETURN item1 AS from, item2 AS to, similarity
+            RETURN item2 AS to, similarity
             ORDER BY similarity DESC LIMIT 10""", userId=userId)
         return result
 
@@ -75,9 +88,11 @@ class neo4jDB(object):
             return rating
     @staticmethod
     def _set_movie_rating(tx, userId, movieId, rating):
-        result = tx.run("""MERGE (:User {id:$userId})-[r:RATED]->(m:Movie {id:$movieId}) 
-                        ON CREATE SET r.rating = $rating ON MATCH SET r.rating = $rating 
-                        RETURN m, r""", userId=userId, movieId=movieId, rating=rating)
+        result = tx.run("""
+            MATCH (u:User {id:$userId}), (m:Movie {id:$movieId})
+            MERGE (u)-[r:RATED]-(m)
+            ON CREATE SET r.rating = $rating ON MATCH SET r.rating = $rating 
+            RETURN m.id, r.rating""", userId=userId, movieId=movieId, rating=rating)
         return result
 
     """def print_greeting(self, message):

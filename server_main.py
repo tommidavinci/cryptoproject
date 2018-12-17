@@ -147,8 +147,18 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                     break
+                elif msg == '5':
+                    result = movie_controller.set_movie_rating(1, 1, 4)
+                    result += '\nSend any key to return to Home'
+                    client.send(sign_and_encrypt(box, server_signing_key, result))
+                    back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 elif msg == '6':
                     result = movie_controller.set_movie_rating(1, 1, 2.5)
+                    result += '\nSend any key to return to Home'
+                    client.send(sign_and_encrypt(box, server_signing_key, result))
+                    back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+                elif msg == '7':
+                    result = movie_controller.delete_movie_rating(1, 1)
                     result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))

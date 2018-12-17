@@ -14,22 +14,27 @@ class MovieStore:
 
 
     ## User
+    def delete_movie_rating(self, user_id, movie_id):
+        result = self.graphdb.delete_movie_rating(user_id, movie_id)
+        #Throws a "TypeError: 'int' object does not support indexing" error
+        movieInfo = self.db.query_with_params("select * from get_movie(%s)",(movie_id))
+        result = []
+        result.append(movieInfo[0])
+        result.append(movieInfo[1])
+        result.append(movieInfo[2])
+        return result
+    
     def get_precise_interested_movies(self, user_id):
         prelimResult = self.graphdb.get_precise_similar_users(user_id)
         recommended_movies = self.graphdb.get_movies_from_users_not_rated_by_x(user_id, prelimResult)
         result = []
         import random
+        length = len(recommended_movies._records)
         for num in range(20):
-            result.append(recommended_movies._records[random.randint(0, len(recommended_movies._records))]['m.id'])
+            result.append(str(recommended_movies._records[random.randint(0, length)]['m.id']))
             print(result[num])
-        stringResult = []
-        for res in result:
-            stringResult.append(str(res))
-        result = self.db.query("select * from get_movies(array[" + ','.join(stringResult) + "])")
+        result = self.db.query("select * from get_movies(array[" + ','.join(result) + "])")
         return result
-
-        
-            
 
     def get_rated_movies(self, user_id):
         ratings = self.graphdb.get_movies_rated_by_user(user_id)
@@ -44,22 +49,18 @@ class MovieStore:
             result[i][1] = movies[i][1]
             result[i][2] = movies[i][2]
         return result
-   
-    def get_interested_movies(self, user_id):
-        #Need to implement
-        return [(1,"Nothing"),(2,"Iron man"),(3,"Spiderman")]
     
     def set_movie_rating(self, user_id, movie_id, rating):
         rating = self.graphdb.set_movie_rating(user_id, movie_id, rating)
+        intVal = rating._records[0]['m.id']
+        #This is not working, throwing a "TypeError: 'int' object does not support indexing" error
+        sqlRes = self.db.query_with_params("select * from get_movie(%s)",(intVal))
         result = []
-        for record in rating:
-            result = ["", "", "", record['r.rating']]
-            movie_name_and_year = self.db.query_with_params("select * from get_movie(%s)", (record['m.id']))
-        for field, res in movie_name_and_year, result:
-            res = field
+        result.append(sqlRes[0])
+        result.append(sqlRes[1])
+        result.append(sqlRes[2])
+        result.append(rating._records['r.rating'])
         return result
-        
-
 
     def test(self):
         return self.graphdb.test()
