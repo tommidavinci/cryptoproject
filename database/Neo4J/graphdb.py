@@ -3,26 +3,15 @@ from database.config import config
 
 class neo4jDB(object):
 
+    #################################################### Setup and teardown
     def __init__(self):
         params = config('database/database.ini', 'neo4j')
         self._driver = GraphDatabase.driver(params['uri'], auth=(params['user'], params['password']))
 
     def close(self):
         self._driver.close()
-
-    #def test(self):
-    #    with self._driver.session() as session:
-    #        rating = session.write_transaction(self._find_rating_of_movie_by_user, )
-
-    def test(self):
-        with self._driver.session() as session:
-            test = session.read_transaction(self._test)
-            return test
-    @staticmethod
-    def _test(tx):
-        return tx.run("""
-            MATCH (m:Movie {id:1}) RETURN m.id""").single()[0]
     
+    #################################################### Functionality
     def get_movies_rated_by_user(self, userId):
         with self._driver.session() as session:
             rating = session.read_transaction(self._get_movies_rated_by_user, userId)
@@ -33,17 +22,6 @@ class neo4jDB(object):
             MATCH (u:User {id:$userId})-[r:RATED]->(m:Movie) 
             RETURN r.rating, m.id""", userId=userId)
         return result
-    
-    def delete_movie_rating(self, userId, movieId):
-        with self._driver.session() as session:
-            rating = session.write_transaction(self._delete_movie_rating, userId, movieId)
-            return rating
-    @staticmethod
-    def _delete_movie_rating(tx, userId, movieId):
-        tx.run("""
-            MATCH (:User{id:$userId})-[r:RATED]->(:Movie{id:$movieId})
-            DELETE r""", userId=userId, movieId=movieId)
-        return ""
     
     def get_movies_from_users_not_rated_by_x(self, userId, resultset):
         userArr = []
@@ -81,7 +59,8 @@ class neo4jDB(object):
             RETURN item2 AS to, similarity
             ORDER BY similarity DESC LIMIT 10""", userId=userId)
         return result
-
+    
+    #################################################### Rating CRUD
     def set_movie_rating(self, userId, movieId, rating):
         with self._driver.session() as session:
             rating = session.write_transaction(self._set_movie_rating, userId, movieId, rating)
@@ -91,12 +70,23 @@ class neo4jDB(object):
         result = tx.run("""
             MATCH (u:User {id:$userId}), (m:Movie {id:$movieId})
             MERGE (u)-[r:RATED]-(m)
-            ON CREATE SET r.rating = $rating ON MATCH SET r.rating = $rating 
+                ON CREATE SET r.rating = $rating
+                ON MATCH SET r.rating = $rating 
             RETURN m.id, r.rating""", userId=userId, movieId=movieId, rating=rating)
         return result
+    
+    def delete_movie_rating(self, userId, movieId):
+        with self._driver.session() as session:
+            rating = session.write_transaction(self._delete_movie_rating, userId, movieId)
+            return rating
+    @staticmethod
+    def _delete_movie_rating(tx, userId, movieId):
+        tx.run("""
+            MATCH (:User{id:$userId})-[r:RATED]->(:Movie{id:$movieId})
+            DELETE r""", userId=userId, movieId=movieId)
+        return ""
 
-
-    # Movie & User CRUD
+    #################################################### Movie & User CRUD
     def create_user(self, userId):
         with self._driver.session() as session:
             result = session.write_transaction(self._create_user, userId)
@@ -141,6 +131,15 @@ class neo4jDB(object):
             DELETE m""", movieId=movieId)
         return result
 
+    #################################################### test
+    def test(self):
+        with self._driver.session() as session:
+            test = session.read_transaction(self._test)
+            return test
+    @staticmethod
+    def _test(tx):
+        return tx.run("""
+            MATCH (m:Movie {id:1}) RETURN m.id""").single()[0]
 
     """def print_greeting(self, message):
         with self._driver.session() as session:
