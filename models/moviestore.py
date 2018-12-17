@@ -15,12 +15,11 @@ class MovieStore:
     ## User
     def delete_movie_rating(self, user_id, movie_id):
         result = self.graphdb.delete_movie_rating(user_id, movie_id)
-        #Throws a "TypeError: 'int' object does not support indexing" error
-        movieInfo = self.db.query_with_params("select * from get_movie(%s)",(movie_id))
+        movieInfo = self.db.query("select * from get_movies(array[" + str(movie_id) + "])")
         result = []
-        result.append(movieInfo[0])
-        result.append(movieInfo[1])
-        result.append(movieInfo[2])
+        result.append(movieInfo[0][0])
+        result.append(movieInfo[0][1])
+        result.append(movieInfo[0][2])
         return result
     
     def get_precise_interested_movies(self, user_id):
@@ -52,13 +51,12 @@ class MovieStore:
     def set_movie_rating(self, user_id, movie_id, rating):
         rating = self.graphdb.set_movie_rating(user_id, movie_id, rating)
         intVal = rating._records[0]['m.id']
-        #This is not working, throwing a "TypeError: 'int' object does not support indexing" error
-        sqlRes = self.db.query_with_params("select * from get_movie(%s)",(intVal))
+        sqlRes = self.db.query("select * from get_movies(array[" + str(intVal) + "])")
         result = []
-        result.append(sqlRes[0])
-        result.append(sqlRes[1])
-        result.append(sqlRes[2])
-        result.append(rating._records['r.rating'])
+        result.append(sqlRes[0][0])
+        result.append(sqlRes[0][1])
+        result.append(sqlRes[0][2])
+        result.append(rating._records[0]['r.rating'])
         return result
 
     def test(self):

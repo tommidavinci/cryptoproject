@@ -53,8 +53,7 @@ class MovieView:
     
     def print_set_movie_rating(self, movies):
         result = "Rated movie: \n"
-        for movie in movies:
-            result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}   -  Rating: {3}\n".format(movie[0], self.array_to_string(movie[1]), movie[2], movie[3])
+        result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}   -  Rating: {3}\n".format(movies[0], self.array_to_string(movies[1]), movies[2], movies[3])
         return result
 
     def print_user_functions(self, userName):
