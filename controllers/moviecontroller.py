@@ -41,12 +41,12 @@ class MovieController:
         movies = self.movie_view.print_get_rated_movies(result)
         return movies
 
-    def get_similar_movies(self, movie_id):
-        result = self.movie_store.get_similar_movies(movie_id)
+    def get_similar_movies_by_genre(self, movie_id):
+        result = self.movie_store.get_similar_movies_by_genre(movie_id)
         if not result:
             error = self.movie_view.print_error("Could not find any movies that is similar to movie with " + movie_id)
             return error
-        movies = self.movie_view.print_get_similar_movies(movie_id, result)
+        movies = self.movie_view.print_get_similar_movies_by_genre(movie_id, result)
         return movies
 
     def set_movie_rating(self, user_id, movie_id, rating):

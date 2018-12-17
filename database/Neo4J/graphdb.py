@@ -95,6 +95,53 @@ class neo4jDB(object):
             RETURN m.id, r.rating""", userId=userId, movieId=movieId, rating=rating)
         return result
 
+
+    # Movie & User CRUD
+    def create_user(self, userId):
+        with self._driver.session() as session:
+            result = session.write_transaction(self._create_user, userId)
+            return result
+    @staticmethod
+    def _create_user(tx, userId):
+        result = tx.run("""
+            CREATE (u:User {id:$userId})
+            RETURN u""", userId=userId)
+        return result
+
+    def create_movie(self, movieId):
+        with self._driver.session() as session:
+            result = session.write_transaction(self._create_movie, movieId)
+            return result
+    @staticmethod
+    def _create_movie(tx, movieId):
+        result = tx.run("""
+            CREATE (m:Movie {id:$movieId})
+            RETURN m""", movieId=movieId)
+        return result
+
+    def delete_user(self, userId):
+        with self._driver.session() as session:
+            result = session.write_transaction(self._delete_user, userId)
+            return result
+    @staticmethod
+    def _delete_user(tx, userId):
+        result = tx.run("""
+            MATCH (u:User {id:$userId})
+            DELETE u""", userId=userId)
+        return result
+    
+    def delete_movie(self, movieId):
+        with self._driver.session() as session:
+            result = session.write_transaction(self._delete_movie, movieId)
+            return result
+    @staticmethod
+    def _delete_movie(tx, movieId):
+        result = tx.run("""
+            MATCH (m:Movie {id:$movieId})
+            DELETE m""", movieId=movieId)
+        return result
+
+
     """def print_greeting(self, message):
         with self._driver.session() as session:
             greeting = session.write_transaction(self._create_and_return_greeting, message)
