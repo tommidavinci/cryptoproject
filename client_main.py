@@ -60,7 +60,9 @@ while True:
             print("closing...")
             client_socket.close()
             break
-        selection = input()
+        selection = ""
+        while selection.strip() is "":
+            selection = input()
         encrypted = sign_and_encrypt(symmetric_secret_key_box_client, client_signing_key, selection)
         client_socket.send(encrypted)
 
