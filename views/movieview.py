@@ -19,7 +19,7 @@ class MovieView:
     
     def print_delete_movie_rating(self, movies):
         result = "Deleted rating of movie: \n"
-        result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}\n".format(movies[0], self.array_to_string(movies[1]), movies[2], movies[3])
+        result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}\n".format(movies[0], self.array_to_string(movies[1]), movies[2])
         return result
 
     def print_get_rated_movies(self, movies):
@@ -45,13 +45,7 @@ class MovieView:
                         result += movies[i][1][j] + " | "
         return result.rstrip(" | ")
 
-    def print_get_rated_movies(self, user_id, movies):
-        result = "Found movies that you have rated: \n"
-        for movie in movies:
-            result += movie_format.format(movie[0], movie[1])
-        return result
-
-    def print_get_interested_movies(self, user_id, movies):
+    def print_get_interested_movies(self, movies):
         result = "Found movies that you might get interested based on your prior ratings:\n"
         for movie in movies:
             result += movie_format.format(movie[0], self.array_to_string(movie[1]), movie[2])
