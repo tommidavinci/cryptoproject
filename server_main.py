@@ -13,6 +13,7 @@ from models.userstore import UserStore
 from views.userview import UserView
 from controllers.usercontroller import UserController
 from database.db import DB
+from database.Neo4J.graphdb import neo4jDB
 from common_functions import sign_and_encrypt, decrypt_and_verify
 
 
@@ -104,7 +105,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
         msg = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
         while True:
             if msg == '1':
-                client.send(sign_and_encrypt(box, server_signing_key, "Please enter the movie name you want to search:\nTo specify year user --year\nExample: star wars --year 2018 "))
+                client.send(sign_and_encrypt(box, server_signing_key, "Please enter the movie name you want to search:\nTo specify year, use --year\nExample: star wars --year 2018 "))
                 search_string = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 result = movie_controller.search_movie(search_string)
                 result += '\nPlease enter the movie name you want to search or type "back" to return to Home: '
@@ -133,7 +134,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     next_search = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 break
             ## User only functions
-            if userId > 9:
+            if userId > 0:
                 if msg == '3':
                     result = movie_controller.get_rated_movies(1)
                     result += '\nSend any key to return to Home'
@@ -141,11 +142,26 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                     break
                 elif msg == '4':
-                    result = movie_controller.get_interested_movies(1)
+                    result = movie_controller.get_precise_interested_movies(1)
                     result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                     break
+                elif msg == '5':
+                    result = movie_controller.set_movie_rating(1, 1, 4)
+                    result += '\nSend any key to return to Home'
+                    client.send(sign_and_encrypt(box, server_signing_key, result))
+                    back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+                elif msg == '6':
+                    result = movie_controller.set_movie_rating(1, 1, 2.5)
+                    result += '\nSend any key to return to Home'
+                    client.send(sign_and_encrypt(box, server_signing_key, result))
+                    back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+                elif msg == '7':
+                    result = movie_controller.delete_movie_rating(1, 1)
+                    result += '\nSend any key to return to Home'
+                    client.send(sign_and_encrypt(box, server_signing_key, result))
+                    back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 elif msg == 'quit':
                     client.send(sign_and_encrypt(box, server_signing_key, "quit"))
                     client.close()
@@ -175,7 +191,8 @@ server_signing_key = nacl.signing.SigningKey(bytes(skserver))
 server_verify_key = server_signing_key.verify_key
 
 db = DB()
-movie_store = MovieStore(db)
+graphdb = neo4jDB()
+movie_store = MovieStore(db, graphdb)
 movie_view = MovieView()
 movie_controller = MovieController(movie_store, movie_view)
 user_store = UserStore(db)
@@ -183,6 +200,11 @@ user_view = UserView()
 user_controller = UserController(user_store, user_view)
 
 for res in user_store.test():
+    print(res)
+
+print('neo4j', movie_store.test())
+
+for res in movie_store.get_rated_movies(1):
     print(res)
 
 
