@@ -14,12 +14,12 @@ class MovieView:
     def print_movies(self, movie_name, movies):
         result = "Found movies that is similar to search string \"{0}\"\n".format(movie_name)
         for movie in movies:
-            result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}\n".format(movie[0], self.array_to_string(movie[1]), movie[2])
+            result += movie_format.format(movie[0], self.array_to_string(movie[1]), movie[2])
         return result
     
     def print_delete_movie_rating(self, movies):
         result = "Deleted rating of movie: \n"
-        result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}\n".format(movies[0], self.array_to_string(movies[1]), movies[2])
+        result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
         return result
 
     def print_get_rated_movies(self, movies):
