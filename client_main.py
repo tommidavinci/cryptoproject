@@ -2,6 +2,7 @@ import nacl.secret
 import nacl.utils
 import nacl.signing
 import pickle
+import os
 from socket import AF_INET, socket, SOCK_STREAM
 from nacl.public import PrivateKey, Box, PublicKey
 from nacl.signing import VerifyKey
@@ -20,8 +21,17 @@ else:
 BUFSIZ = 4096
 ADDR = (HOST, PORT)
 
+if not os.path.isfile('client_private_key'):
+    skclient = PrivateKey.generate()
+    f = open("client_private_key", "wb")
+    f.write(bytes(skclient))
+    f.close()
+
+file = open("client_private_key", "rb")
+key = file.read()
+
 # Asymmetric
-skclient = PrivateKey.generate()
+skclient = PrivateKey(key)
 pkclient = skclient.public_key
 client_signing_key = nacl.signing.SigningKey(bytes(skclient))
 client_verify_key = client_signing_key.verify_key
@@ -43,13 +53,13 @@ symmetric_privatekey_bytes = client_socket.recv(BUFSIZ)
 symmetric_privatekey = client_server_box.decrypt(symmetric_privatekey_bytes)
 symmetric_secret_key_box_client = nacl.secret.SecretBox(symmetric_privatekey)
 
-##msg_encrypted = client_socket.recv(BUFSIZ)
-##msg = decrypt_and_verify(symmetric_secret_key_box_client, server_verify_key, msg_encrypted)
-##print(msg)
+# msg_encrypted = client_socket.recv(BUFSIZ)
+# msg = decrypt_and_verify(symmetric_secret_key_box_client, server_verify_key, msg_encrypted)
+# print(msg)
 
 
-##name = input()
-##client_socket.send(sign_and_encrypt(symmetric_secret_key_box_client, client_signing_key, name))
+# name = input()
+# client_socket.send(sign_and_encrypt(symmetric_secret_key_box_client, client_signing_key, name))
 
 while True:
     try:

@@ -14,12 +14,29 @@ class MovieView:
     def print_movies(self, movie_name, movies):
         result = "Found movies that is similar to search string \"{0}\"\n".format(movie_name)
         for movie in movies:
-            result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}\n".format(movie[0], self.array_to_string(movie[1]), movie[2])
+            result += movie_format.format(movie[0], self.array_to_string(movie[1]), movie[2])
+        return result
+    
+    def print_create_review(self, movies):
+        result = "Create review of movie: \n"
+        result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
+        result += "Review: " + movies[3]
         return result
     
     def print_delete_movie_rating(self, movies):
         result = "Deleted rating of movie: \n"
-        result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}\n".format(movies[0], self.array_to_string(movies[1]), movies[2])
+        result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
+        return result
+    
+    def print_delete_review(self, movies):
+        result = "Deleted review of movie: \n"
+        result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
+        return result
+    
+    def print_edit_review(self, movies):
+        result = "Edited review of movie: \n"
+        result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
+        result += "Review: " + movies[3]
         return result
 
     def print_get_rated_movies(self, movies):
@@ -63,7 +80,7 @@ class MovieView:
         welcome += '\n1. Search for a movie'
         welcome += '\n2. List all the movies that has similar genres with a given movie'
         welcome += '\n3. List all the movies that you have rated or reviewed' 
-        welcome += '\n4. List all the movies that you might interested in' #?
+        welcome += '\n4. List all the movies that you might interested in (Precise)' #?
         welcome += '\n5. Rate a movie' # c rating
         welcome += '\n6. Edit your rate for a movie' 
         welcome += '\n7. Delete your rate for a movie'

@@ -140,15 +140,3 @@ class neo4jDB(object):
     def _test(tx):
         return tx.run("""
             MATCH (m:Movie {id:1}) RETURN m.id""").single()[0]
-
-    """def print_greeting(self, message):
-        with self._driver.session() as session:
-            greeting = session.write_transaction(self._create_and_return_greeting, message)
-            print(greeting)
-
-    @staticmethod
-    def _create_and_return_greeting(tx, message):
-        result = tx.run("CREATE (a:Greeting) "
-                        "SET a.message = $message "
-                        "RETURN a.message + ', from node ' + id(a)", message=message)
-        return result.single()[0]"""
