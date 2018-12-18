@@ -62,7 +62,7 @@ class MovieView:
         welcome += '\n1. Search for a movie'
         welcome += '\n2. List all the movies that has similar genres with a given movie'
         welcome += '\n3. List all the movies that you have rated or reviewed' 
-        welcome += '\n4. List all the movies that you might interested in' #?
+        welcome += '\n4. List all the movies that you might interested in (Precise)' #?
         welcome += '\n5. Rate a movie' # c rating
         welcome += '\n6. Edit your rate for a movie' 
         welcome += '\n7. Delete your rate for a movie'

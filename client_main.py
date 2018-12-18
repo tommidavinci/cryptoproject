@@ -53,13 +53,13 @@ symmetric_privatekey_bytes = client_socket.recv(BUFSIZ)
 symmetric_privatekey = client_server_box.decrypt(symmetric_privatekey_bytes)
 symmetric_secret_key_box_client = nacl.secret.SecretBox(symmetric_privatekey)
 
-##msg_encrypted = client_socket.recv(BUFSIZ)
-##msg = decrypt_and_verify(symmetric_secret_key_box_client, server_verify_key, msg_encrypted)
-##print(msg)
+# msg_encrypted = client_socket.recv(BUFSIZ)
+# msg = decrypt_and_verify(symmetric_secret_key_box_client, server_verify_key, msg_encrypted)
+# print(msg)
 
 
-##name = input()
-##client_socket.send(sign_and_encrypt(symmetric_secret_key_box_client, client_signing_key, name))
+# name = input()
+# client_socket.send(sign_and_encrypt(symmetric_secret_key_box_client, client_signing_key, name))
 
 while True:
     try:
