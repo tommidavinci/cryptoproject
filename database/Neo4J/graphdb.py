@@ -61,6 +61,28 @@ class neo4jDB(object):
         return result
     
     #################################################### Rating CRUD
+    def delete_movie_rating(self, userId, movieId):
+        with self._driver.session() as session:
+            rating = session.write_transaction(self._delete_movie_rating, userId, movieId)
+            return rating
+    @staticmethod
+    def _delete_movie_rating(tx, userId, movieId):
+        tx.run("""
+            MATCH (:User{id:$userId})-[r:RATED]->(:Movie{id:$movieId})
+            DELETE r""", userId=userId, movieId=movieId)
+        return ""
+    
+    def get_movie_rating(self, userId, movieId):
+        with self._driver.session() as session:
+            rating = session.read_transaction(self._get_movie_rating, userId, movieId)
+            return rating
+    @staticmethod
+    def _get_movie_rating(tx, userId, movieId):
+        result = tx.run("""
+            MATCH (:User{id:$userId})-[r:RATED]->(:Movie{id:$movieId})
+            RETURN r.rating""", userId=userId, movieId=movieId)
+        return result
+
     def set_movie_rating(self, userId, movieId, rating):
         with self._driver.session() as session:
             rating = session.write_transaction(self._set_movie_rating, userId, movieId, rating)
@@ -74,17 +96,6 @@ class neo4jDB(object):
                 ON MATCH SET r.rating = $rating 
             RETURN m.id, r.rating""", userId=userId, movieId=movieId, rating=rating)
         return result
-    
-    def delete_movie_rating(self, userId, movieId):
-        with self._driver.session() as session:
-            rating = session.write_transaction(self._delete_movie_rating, userId, movieId)
-            return rating
-    @staticmethod
-    def _delete_movie_rating(tx, userId, movieId):
-        tx.run("""
-            MATCH (:User{id:$userId})-[r:RATED]->(:Movie{id:$movieId})
-            DELETE r""", userId=userId, movieId=movieId)
-        return ""
 
     #################################################### Movie & User CRUD
     def create_user(self, userId):
