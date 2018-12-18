@@ -94,7 +94,7 @@ class neo4jDB(object):
     def _get_movie_rating(tx, userId, movieId):
         result = tx.run("""
             MATCH (:User{id:$userId})-[r:RATED]->(:Movie{id:$movieId})
-            RETURN r.rating""")
+            RETURN r.rating""", userId=userId, movieId=movieId)
         return result
 
     #################################################### Movie & User CRUD
