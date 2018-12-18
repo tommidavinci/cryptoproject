@@ -2,6 +2,7 @@ import nacl.secret
 import nacl.utils
 import nacl.signing
 import pickle
+import os
 from socket import AF_INET, socket, SOCK_STREAM
 from nacl.public import PrivateKey, Box, PublicKey
 from nacl.signing import VerifyKey
@@ -20,8 +21,17 @@ else:
 BUFSIZ = 4096
 ADDR = (HOST, PORT)
 
+if not os.path.isfile('client_private_key'):
+    skserver = PrivateKey.generate()
+    f = open("client_private_key", "wb")
+    f.write(bytes(skserver))
+    f.close()
+
+file = open("client_private_key", "rb")
+key = file.read()
+
 # Asymmetric
-skclient = PrivateKey.generate()
+skclient = PrivateKey(key)
 pkclient = skclient.public_key
 client_signing_key = nacl.signing.SigningKey(bytes(skclient))
 client_verify_key = client_signing_key.verify_key

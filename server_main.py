@@ -2,6 +2,7 @@ import nacl.secret
 import nacl.utils
 import nacl.signing
 import pickle
+import os
 from socket import AF_INET, socket, SOCK_STREAM
 from nacl.public import PrivateKey, Box, PublicKey
 from nacl.signing import VerifyKey
@@ -196,7 +197,15 @@ ADDR = (HOST, PORT)
 SERVER = socket(AF_INET, SOCK_STREAM)
 SERVER.bind(ADDR)
 
-skserver = PrivateKey.generate()
+if not os.path.isfile('server_private_key'):
+    skserver = PrivateKey.generate()
+    f = open("server_private_key", "wb")
+    f.write(bytes(skserver))
+    f.close()
+
+file = open("server_private_key", "rb")
+key = file.read()
+skserver = PrivateKey(key)
 pkserver = skserver.public_key
 
 server_signing_key = nacl.signing.SigningKey(bytes(skserver))
