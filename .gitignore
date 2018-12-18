@@ -3,3 +3,4 @@ venv/
 __pycache__/
 /database/database.ini
 server_private_key
+client_private_key
