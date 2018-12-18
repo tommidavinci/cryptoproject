@@ -75,8 +75,6 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     userId = result
                     userName = username
                     quit = True
-           
-
 
     #################################################### Home Page (Server functionality)
     quit = False
