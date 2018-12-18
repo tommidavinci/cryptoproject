@@ -52,7 +52,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
         client.send(sign_and_encrypt(box, server_signing_key, '1. Login\n2. Signup:\n3. Anon'))
         msg = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
 
-        if msg == '3':
+        if msg == '3': #################################################### Use Application as Anonymous
             quit = True
         else:
             client.send(sign_and_encrypt(box, server_signing_key, 'Username: '))
@@ -60,7 +60,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
             client.send(sign_and_encrypt(box, server_signing_key, 'Password: '))
             password = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
 
-            if msg == '1':
+            if msg == '1': #################################################### Login
                 result = user_controller.login(username, password)
                 if result is not None:
                     userId = result
@@ -69,7 +69,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                 else:
                     client.send
                     
-            elif msg == '2':
+            elif msg == '2': #################################################### Signup
                 result = user_controller.signup(username, password)
                 if result is not None:
                     userId = result
@@ -89,7 +89,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
         client.send(sign_and_encrypt(box, server_signing_key, welcome))
         msg = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
         while True:
-            if msg == '1':
+            if msg == '1': #################################################### Search for a movie
                 client.send(sign_and_encrypt(box, server_signing_key, "Please enter the movie name you want to search:\nTo specify year, use --year\nExample: star wars --year 2018 "))
                 search_string = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 result = movie_controller.search_movie(search_string)
@@ -103,7 +103,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     next_search = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 break
 
-            elif msg == '2':
+            elif msg == '2': #################################################### Find movies similar to a movie
                 client.send(sign_and_encrypt(box, server_signing_key, "Please enter a movie ID you want to find other similar movies to: "))
                 search_string = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 result = movie_controller.get_similar_movies_by_genre(search_string)
