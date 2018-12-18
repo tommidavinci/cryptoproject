@@ -4,6 +4,7 @@ from database.config import config
 
 class DB:
 
+    #################################################### Setup
     def __init__(self):
         self.conn = None
 
@@ -22,6 +23,7 @@ class DB:
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
 
+    #################################################### Functionality
     def query(self, sql):
         if not self.conn:
             self.conn = self.connect()
