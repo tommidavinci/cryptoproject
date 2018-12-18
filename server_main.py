@@ -91,8 +91,8 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
            
 
 
-    ## Server functionality    
-    ##clients[client] = name
+    # Server functionality    
+    # clients[client] = name
     quit = False
     while quit == False:
         welcome = ""
@@ -134,7 +134,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     next_search = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 break
-            ## User only functions
+            # User only functions
             if userId > 0:
                 if msg == '3':
                     result = movie_controller.get_rated_movies(userId)
