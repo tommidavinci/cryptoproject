@@ -22,9 +22,9 @@ BUFSIZ = 4096
 ADDR = (HOST, PORT)
 
 if not os.path.isfile('client_private_key'):
-    skserver = PrivateKey.generate()
+    skclient = PrivateKey.generate()
     f = open("client_private_key", "wb")
-    f.write(bytes(skserver))
+    f.write(bytes(skclient))
     f.close()
 
 file = open("client_private_key", "rb")
