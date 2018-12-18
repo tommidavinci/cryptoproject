@@ -105,7 +105,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
 
         msg = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
         while True:
-            if msg == '1':
+            if msg == '1': # Search for a moive
                 client.send(sign_and_encrypt(box, server_signing_key, "Please enter the movie name you want to search:\nTo specify year, use --year\nExample: star wars --year 2018 "))
                 search_string = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 result = movie_controller.search_movie(search_string)
@@ -119,7 +119,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     next_search = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 break
-            elif msg == '2':
+            elif msg == '2': # List movies with similar genres
                 client.send(sign_and_encrypt(box, server_signing_key, "Please enter a movie ID you want to find other similar movies to: "))
                 search_string = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 result = movie_controller.get_similar_movies_by_genre(search_string)
@@ -136,14 +136,15 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                 break
             # User only functions
             if userId > 0:
-                if msg == '3':
-                    result = movie_controller.get_rated_movies(userId)
+              
+                if msg == '3': # List movies 
+                    result = movie_controller.get_precise_interested_movies(1)
                     result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                     break
-                elif msg == '4':
-                    result = movie_controller.get_precise_interested_movies(1)
+                elif msg == '4': # List rated movies
+                    result = movie_controller.get_rated_movies(userId)
                     result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
@@ -157,19 +158,30 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+                # elif msg == '6':
+                #     client.send(sign_and_encrypt(box, server_signing_key, 'Movie ID: '))
+                #     movie_id = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
+                #     client.send(sign_and_encrypt(box, server_signing_key, 'Rating: '))
+                #     rating = float(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
+                #     result = movie_controller.set_movie_rating(userId, movie_id, rating)
+                #     result += '\nSend any key to return to Home'
+                #     client.send(sign_and_encrypt(box, server_signing_key, result))
+                #     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 elif msg == '6':
                     client.send(sign_and_encrypt(box, server_signing_key, 'Movie ID: '))
                     movie_id = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
-                    client.send(sign_and_encrypt(box, server_signing_key, 'Rating: '))
-                    rating = float(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
-                    result = movie_controller.set_movie_rating(userId, movie_id, rating)
+                    result = movie_controller.delete_movie_rating(userId, movie_id)
                     result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 elif msg == '7':
                     client.send(sign_and_encrypt(box, server_signing_key, 'Movie ID: '))
                     movie_id = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
-                    result = movie_controller.delete_movie_rating(userId, movie_id)
+                    client.send(sign_and_encrypt(box, server_signing_key, 'Review Title: '))
+                    title = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+                    client.send(sign_and_encrypt(box, server_signing_key, 'Review Body: '))
+                    review = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+                    result = movie_controller.create_update_review(userId, movie_id, title, review)
                     result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
@@ -178,20 +190,11 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     movie_id = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
                     client.send(sign_and_encrypt(box, server_signing_key, 'Review: '))
                     review = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
-                    result = movie_controller.create_review(userId, movie_id, review)
-                    result += '\nSend any key to return to Home'
-                    client.send(sign_and_encrypt(box, server_signing_key, result))
-                    back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
-                elif msg == '9':
-                    client.send(sign_and_encrypt(box, server_signing_key, 'Movie ID: '))
-                    movie_id = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
-                    client.send(sign_and_encrypt(box, server_signing_key, 'Review: '))
-                    review = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                     result = movie_controller.edit_review(userId, movie_id, review)
                     result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
-                elif msg == '10':
+                elif msg == '9':
                     client.send(sign_and_encrypt(box, server_signing_key, 'Movie ID: '))
                     movie_id = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
                     result = movie_controller.delete_review(userId, movie_id)

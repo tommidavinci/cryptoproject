@@ -79,15 +79,15 @@ class MovieView:
         welcome += '\nBelow you can see a list of operation you can perform:'
         welcome += '\n1. Search for a movie'
         welcome += '\n2. List all the movies that has similar genres with a given movie'
-        welcome += '\n3. List all the movies that you have rated or reviewed' 
-        welcome += '\n4. List all the movies that you might interested in (Precise)' #?
-        welcome += '\n5. Rate a movie' # c rating
-        welcome += '\n6. Edit your rate for a movie' 
-        welcome += '\n7. Delete your rate for a movie'
-        welcome += '\n8. Create a review for a movie'
-        welcome += '\n9. Edit your review for a movie'
-        welcome += '\n10. Delete your review for a movie'
-        welcome += '\n11. Create a user (Admin right)'
+        welcome += '\n3. List all the movies that you might interested in (Precise)' #?
+        welcome += '\n4. List all the movies that you have rated' 
+        welcome += '\n5. Rate a movie or update an existing rating ' # c rating
+        # welcome += '\n6. Edit your rate for a movie' 
+        welcome += '\n6. Delete your rate for a movie'
+        welcome += '\n8. Read a review'
+        welcome += '\n7. Create or Update a review for a movie'
+        welcome += '\n9. Delete your review for a movie'
+        # welcome += '\n11. Create a user (Admin right)'
         welcome += '\nEnter your choice (number) - type "quit" to exit: '
         return welcome
 

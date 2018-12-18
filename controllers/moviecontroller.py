@@ -17,7 +17,15 @@ class MovieController:
         self.current_movie_list = result
         return movies
     
-    def create_review(self, user_id, movie_id, review):
+    def list_reviews(self, user_id):
+        result = self.movie_store.list_reviews(user_id)
+        return 0
+        
+    def read_review(self, user_id, movie_id):
+        result = self.movie_store.read_review(user_id, movie_id)
+        return 0
+
+    def create_update_review(self, user_id, movie_id, title, review):
         result = self.movie_store.create_review(user_id, movie_id, review)
         if not result:
             error = self.movie_view.print_error("Could not create the review")
@@ -33,13 +41,13 @@ class MovieController:
         result = self.movie_view.print_delete_review(result)
         return result
     
-    def edit_review(self, user_id, movie_id, review):
-        result = self.movie_store.edit_review(user_id, movie_id, review)
-        if not result:
-            error = self.movie_view.print_error("Could not edit review for movie ID: " + movie_id)
-            return error
-        result = self.movie_view.print_edit_review(result)
-        return result
+    # def edit_review(self, user_id, movie_id, review):
+    #     result = self.movie_store.edit_review(user_id, movie_id, review)
+    #     if not result:
+    #         error = self.movie_view.print_error("Could not edit review for movie ID: " + movie_id)
+    #         return error
+    #     result = self.movie_view.print_edit_review(result)
+    #     return result
     
     def delete_movie_rating(self, user_id, movie_id):
         result = self.movie_store.delete_movie_rating(user_id, movie_id)
