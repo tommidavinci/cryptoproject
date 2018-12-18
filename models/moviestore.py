@@ -13,6 +13,18 @@ class MovieStore:
         return self.db.query_with_params("select * from recommend_movie_by_genre(%s,%s)",(movie_id, limit))
 
     ## User
+    def create_review(self, user_id, movie_id, review):
+        # Do stuff
+        return ["Sample", ["Sample"], "sample", "sampleReview"]
+    
+    def delete_review(self, user_id, movie_id):
+        # Do Stuff
+        return ["Sample", ["Sample"], "sample"]
+
+    def edit_review(self, user_id, movie_id, review):
+        # Do stuff
+        return ["Sample", ["sample"], "sample", "sampleReview"]
+
     def delete_movie_rating(self, user_id, movie_id):
         result = self.graphdb.delete_movie_rating(user_id, movie_id)
         movieInfo = self.db.query("select * from get_movies(array[" + str(movie_id) + "])")
