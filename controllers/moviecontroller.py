@@ -24,6 +24,22 @@ class MovieController:
             return error
         result = self.movie_view.print_create_review(result)
         return result
+
+    def delete_review(self, user_id, movie_id):
+        result = self.movie_store.delete_review(user_id, movie_id)
+        if not result:
+            error = self.movie_view.print_error("Could not delete review for movie ID: " + movie_id)
+            return error
+        result = self.movie_view.print_delete_review(result)
+        return result
+    
+    def edit_review(self, user_id, movie_id, review):
+        result = self.movie_store.edit_review(user_id, movie_id, review)
+        if not result:
+            error = self.movie_view.print_error("Could not edit review for movie ID: " + movie_id)
+            return error
+        result = self.movie_view.print_edit_review(result)
+        return result
     
     def delete_movie_rating(self, user_id, movie_id):
         result = self.movie_store.delete_movie_rating(user_id, movie_id)

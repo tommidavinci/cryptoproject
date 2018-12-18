@@ -27,6 +27,17 @@ class MovieView:
         result = "Deleted rating of movie: \n"
         result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
         return result
+    
+    def print_delete_review(self, movies):
+        result = "Deleted review of movie: \n"
+        result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
+        return result
+    
+    def print_edit_review(self, movies):
+        result = "Edited review of movie: \n"
+        result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
+        result += "Review: " + movies[3]
+        return result
 
     def print_get_rated_movies(self, movies):
         result = "Found movies that you have rated: \n"

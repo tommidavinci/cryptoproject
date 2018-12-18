@@ -177,8 +177,24 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     client.send(sign_and_encrypt(box, server_signing_key, 'Movie ID: '))
                     movie_id = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
                     client.send(sign_and_encrypt(box, server_signing_key, 'Review: '))
-                    review = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
+                    review = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                     result = movie_controller.create_review(userId, movie_id, review)
+                    result += '\nSend any key to return to Home'
+                    client.send(sign_and_encrypt(box, server_signing_key, result))
+                    back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+                elif msg == '9':
+                    client.send(sign_and_encrypt(box, server_signing_key, 'Movie ID: '))
+                    movie_id = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
+                    client.send(sign_and_encrypt(box, server_signing_key, 'Review: '))
+                    review = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+                    result = movie_controller.edit_review(userId, movie_id, review)
+                    result += '\nSend any key to return to Home'
+                    client.send(sign_and_encrypt(box, server_signing_key, result))
+                    back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+                elif msg == '10':
+                    client.send(sign_and_encrypt(box, server_signing_key, 'Movie ID: '))
+                    movie_id = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
+                    result = movie_controller.delete_review(userId, movie_id)
                     result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
