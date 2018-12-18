@@ -85,6 +85,17 @@ class neo4jDB(object):
             MATCH (:User{id:$userId})-[r:RATED]->(:Movie{id:$movieId})
             DELETE r""", userId=userId, movieId=movieId)
         return ""
+    
+    def get_movie_rating(self, userId, movieId):
+        with self._driver.session() as session:
+            rating = session.read_transaction(self._get_movie_rating, userId, movieId)
+            return rating
+    @staticmethod
+    def _get_movie_rating(tx, userId, movieId):
+        result = tx.run("""
+            MATCH (:User{id:$userId})-[r:RATED]->(:Movie{id:$movieId})
+            RETURN r.rating""")
+        return result
 
     #################################################### Movie & User CRUD
     def create_user(self, userId):
