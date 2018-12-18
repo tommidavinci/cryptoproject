@@ -1,8 +1,9 @@
 from kdf import hash_password, verify_password
 
 class UserStore:
-    def __init__(self, db):
+    def __init__(self, db, graphdb):
         self.db = db
+        self.graphdb = graphdb
 
     def test(self):
         return self.db.query("select * from movies where movieId = 1")
@@ -22,13 +23,15 @@ class UserStore:
             return None
         else:
             h_s = hash_password(password) 
-            #h_s = (b'password', b'salt') 
-            ##res = self.db.query_with_params("insert into users (username, password, salt) values (%s,%s,%s) returning userId",
-            ##[username,h_s[0],h_s[1]])# h_s[0], h_s[1]])
+            # h_s = (b'password', b'salt') 
+            # res = self.db.query_with_params("insert into users (username, password, salt) values (%s,%s,%s) returning userId",
+            # [username,h_s[0],h_s[1]])# h_s[0], h_s[1]])
             
             res = self.db.query_with_params("select * from insert_user(%s,%s,%s)",[username,h_s[0], h_s[1]])# h_s[0], h_s[1]])
-        #res = self.db.query("select * from insert_user({0!s},{1!s},{2!s})".format(username, h_s[0], h_s[1]))
-        ##res = self.db.query('select * from insert_user('+ username +','+ h_s[0]+','+ h_s[1] +')')
+            if res:
+                self.graphdb.create_user(res)
+        # res = self.db.query("select * from insert_user({0!s},{1!s},{2!s})".format(username, h_s[0], h_s[1]))
+        # res = self.db.query('select * from insert_user('+ username +','+ h_s[0]+','+ h_s[1] +')')
             if len(res) > 0:
-                return res[0][0] ## the 1 row with userId, username
+                return res[0][0] # the 1 row with userId, username
             return None

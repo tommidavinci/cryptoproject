@@ -173,6 +173,15 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
+                elif msg == '8':
+                    client.send(sign_and_encrypt(box, server_signing_key, 'Movie ID: '))
+                    movie_id = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
+                    client.send(sign_and_encrypt(box, server_signing_key, 'Review: '))
+                    review = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
+                    result = movie_controller.create_review(userId, movie_id, review)
+                    result += '\nSend any key to return to Home'
+                    client.send(sign_and_encrypt(box, server_signing_key, result))
+                    back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                 elif msg == 'quit':
                     client.send(sign_and_encrypt(box, server_signing_key, "quit"))
                     client.close()
@@ -216,7 +225,7 @@ graphdb = neo4jDB()
 movie_store = MovieStore(db, graphdb)
 movie_view = MovieView()
 movie_controller = MovieController(movie_store, movie_view)
-user_store = UserStore(db)
+user_store = UserStore(db, graphdb)
 user_view = UserView()
 user_controller = UserController(user_store, user_view)
 

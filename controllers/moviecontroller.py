@@ -17,6 +17,14 @@ class MovieController:
         self.current_movie_list = result
         return movies
     
+    def create_review(self, user_id, movie_id, review):
+        result = self.movie_store.create_review(user_id, movie_id, review)
+        if not result:
+            error = self.movie_view.print_error("Could not create the review")
+            return error
+        result = self.movie_view.print_create_review(result)
+        return result
+    
     def delete_movie_rating(self, user_id, movie_id):
         result = self.movie_store.delete_movie_rating(user_id, movie_id)
         if not result:
