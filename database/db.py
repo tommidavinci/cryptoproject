@@ -43,6 +43,7 @@ class DB:
         self.conn.commit()
         return records
 
+    #################################################### Runs Once, in script_update_existing_users.py
     def execute(self, sql, params):
         if not self.conn:
             self.conn = self.connect()
