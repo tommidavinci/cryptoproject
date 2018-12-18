@@ -1,16 +1,29 @@
 class MovieStore:
+
+    #################################################### Setup
     def __init__(self, db, graphdb):
         self.db = db
         self.graphdb = graphdb
 
-    ## Anon 
-    def search_movie(self, movie_name, year = -1, limit = 10):
-        #Search based on movie name
-        #result = self.db.query("SELECT movie_id, title FROM movies WHERE to_tsvector('english',title) @@ '" + movie_name + "' LIMIT 10;")
-        return self.db.query_with_params("select * from search_movie_title(%s, %s, %s)", (movie_name, year, limit))
-
-    def get_similar_movies_by_genre(self, movie_id, limit = 10):
+    #################################################### Movie Functionality
+    def get_similar_movies_by_genre(self, movie_id, limit = 10): #### Anon Accessible
         return self.db.query_with_params("select * from recommend_movie_by_genre(%s,%s)",(movie_id, limit))
+    
+    def get_precise_interested_movies(self, user_id):
+        prelimResult = self.graphdb.get_precise_similar_users(user_id)
+        recommended_movies = self.graphdb.get_movies_from_users_not_rated_by_x(user_id, prelimResult)
+        result = []
+        import random
+        length = len(recommended_movies._records)
+        for num in range(20):
+            result.append(str(recommended_movies._records[random.randint(0, length)]['m.id']))
+            print(result[num])
+        result = self.db.query("select * from get_movies(array[" + ','.join(result) + "])")
+        return result
+
+    def search_movie(self, movie_name, year = -1, limit = 10): #### Anon Accessible
+        return self.db.query_with_params("select * from search_movie_title(%s, %s, %s)",
+                                            (movie_name, year, limit))
 
     ## User
     def list_reviews(self, user_id):
@@ -33,10 +46,11 @@ class MovieStore:
 
 
 
-    # def edit_review(self, user_id, movie_id, review):
-    #     # Do stuff
-    #     return ["Sample", ["sample"], "sample", "sampleReview"]
-
+    def edit_review(self, user_id, movie_id, review):
+        # Do stuff
+        return ["Sample", ["sample"], "sample", "sampleReview"]
+    
+    #################################################### Rating Functionality
     def delete_movie_rating(self, user_id, movie_id):
         result = self.graphdb.delete_movie_rating(user_id, movie_id)
         movieInfo = self.db.query("select * from get_movies(array[" + str(movie_id) + "])")
@@ -44,18 +58,6 @@ class MovieStore:
         result.append(movieInfo[0][0])
         result.append(movieInfo[0][1])
         result.append(movieInfo[0][2])
-        return result
-    
-    def get_precise_interested_movies(self, user_id):
-        prelimResult = self.graphdb.get_precise_similar_users(user_id)
-        recommended_movies = self.graphdb.get_movies_from_users_not_rated_by_x(user_id, prelimResult)
-        result = []
-        import random
-        length = len(recommended_movies._records)
-        for num in range(20):
-            result.append(str(recommended_movies._records[random.randint(0, length)]['m.id']))
-            print(result[num])
-        result = self.db.query("select * from get_movies(array[" + ','.join(result) + "])")
         return result
 
     def get_rated_movies(self, user_id):
@@ -83,5 +85,6 @@ class MovieStore:
         result.append(rating._records[0]['r.rating'])
         return result
 
+    #################################################### test
     def test(self):
         return self.graphdb.test()

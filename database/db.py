@@ -4,6 +4,7 @@ from database.config import config
 
 class DB:
 
+    #################################################### Setup
     def __init__(self):
         self.conn = None
 
@@ -22,6 +23,7 @@ class DB:
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
 
+    #################################################### Functionality
     def query(self, sql):
         if not self.conn:
             self.conn = self.connect()
@@ -41,6 +43,7 @@ class DB:
         self.conn.commit()
         return records
 
+    #################################################### Runs Once, in script_update_existing_users.py
     def execute(self, sql, params):
         if not self.conn:
             self.conn = self.connect()
