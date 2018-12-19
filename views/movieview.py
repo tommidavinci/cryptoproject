@@ -1,5 +1,6 @@
-movie_format = "id: {0} | {1} - Year: {2}\n"
-
+movie_format =          "id: {0} | {1} - {2}\na.k.a {3}\n" 
+review_format =         "id: {0} | {1} - {2}\na.k.a {3}\n{4}\n\n{5}\n\nBy:{6}}"
+list_review_format =    "id: {0} | {1} - {2} | '{3}'\n"
 class MovieView:
     
     #################################################### Movies
@@ -26,10 +27,21 @@ class MovieView:
         return result.rstrip(" | ")
     
     #################################################### Review
-    def print_create_review(self, movies):
-        result = "Create review of movie: \n"
-        result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
-        result += "Review: " + movies[3]
+    def print_list_reviews(self, reviews):
+        result = "List of reviewed movies\n"
+        for review in reviews:
+            result += list_review_format.format(str(review[0]),review[1],str(review[2]),review[3])
+        return result
+    
+    def print_review(self, review):
+        return review_format.format(review[0],review[1].pop(0),review[2], self.array_to_string(review[1]),review[4],review[5], review[3])
+
+
+    def print_create_review(self, review):
+        result = "Created or updated review"
+        #result += movie_format.format(movies[0], movies[1].pop(1), movies[2], self.array_to_string(movies[1]))
+        result += review_format.format(review[0],review[1].pop(0),review[2], self.array_to_string(review[1]),review[4],review[5], review[3])
+        #result += "Review: " + movies[3]
         return result
     
     def print_delete_review(self, movies):
@@ -37,16 +49,16 @@ class MovieView:
         result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
         return result
     
-    def print_edit_review(self, movies):
-        result = "Edited review of movie: \n"
-        result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
-        result += "Review: " + movies[3]
-        return result
+    # def print_edit_review(self, movies):
+    #     result = "Edited review of movie: \n"
+    #     result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
+    #     result += "Review: " + movies[3]
+    #     return result
     
     #################################################### Rating
     def print_delete_movie_rating(self, movies):
         result = "Deleted rating of movie: \n"
-        result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
+        result += movie_format.format(movies[0], movies[1].pop(0), movies[2], self.array_to_string(movies[1]))
         return result
 
     def print_get_rated_movies(self, movies):
@@ -67,14 +79,17 @@ class MovieView:
         welcome += '\nBelow you can see a list of operation you can perform:'
         welcome += '\n1. Search for a movie'
         welcome += '\n2. List all the movies that has similar genres with a given movie'
+
         welcome += '\n3. List all the movies that you might interested in (Precise)' #?
         welcome += '\n4. List all the movies that you have rated' 
         welcome += '\n5. Rate a movie or update an existing rating ' # c rating
         # welcome += '\n6. Edit your rate for a movie' 
         welcome += '\n6. Delete your rate for a movie'
+        
+        welcome += '\n7. List all movies that you reviewed'
         welcome += '\n8. Read a review'
-        welcome += '\n7. Create or Update a review for a movie'
-        welcome += '\n9. Delete your review for a movie'
+        welcome += '\n9. Create or Update a review for a movie'
+        welcome += '\n10. Delete your review for a movie'
         # welcome += '\n11. Create a user (Admin right)'
         welcome += '\nEnter your choice (number) - type "quit" to exit: '
         return welcome
@@ -91,8 +106,8 @@ class MovieView:
     def array_to_string(self, array):
         res = ""
         for item in array:
-            res += str(item)
-        return res
+            res += str(item) + " | "
+        return res.rstrip(" |")
 
     def print_error(self, message):
         return "Error: " + message

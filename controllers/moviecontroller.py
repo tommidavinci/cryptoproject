@@ -35,14 +35,19 @@ class MovieController:
         movies = self.movie_view.print_movies(movie_name, result)
         self.current_movie_list = result
         return movies
-    
+
+    #################################################### Review Functionality
     def list_reviews(self, user_id):
         result = self.movie_store.list_reviews(user_id)
-        return 0
-        
+        if not result:
+            error = self.movie_view.print_error("No reviews present")
+            return error
+        return self.movie_view.print_list_reviews(result)
+
+
     def read_review(self, user_id, movie_id):
-        result = self.movie_store.read_review(user_id, movie_id)
-        return 0
+        return self.movie_store.read_review(user_id, movie_id)
+        
 
     def create_update_review(self, user_id, movie_id, title, review):
         result = self.movie_store.create_review(user_id, movie_id, review)
@@ -59,14 +64,6 @@ class MovieController:
             return error
         result = self.movie_view.print_delete_review(result)
         return result
-    
-    # def edit_review(self, user_id, movie_id, review):
-    #     result = self.movie_store.edit_review(user_id, movie_id, review)
-    #     if not result:
-    #         error = self.movie_view.print_error("Could not edit review for movie ID: " + movie_id)
-    #         return error
-    #     result = self.movie_view.print_edit_review(result)
-    #     return result
     
     #################################################### Rating Functionality
     def delete_movie_rating(self, user_id, movie_id):
@@ -92,28 +89,3 @@ class MovieController:
             return error
         movies = self.movie_view.print_set_movie_rating(result)
         return movies
-    
-    #################################################### Review Functionality
-    def create_review(self, user_id, movie_id, review):
-        result = self.movie_store.create_review(user_id, movie_id, review)
-        if not result:
-            error = self.movie_view.print_error("Could not create the review")
-            return error
-        result = self.movie_view.print_create_review(result)
-        return result
-
-    def delete_review(self, user_id, movie_id):
-        result = self.movie_store.delete_review(user_id, movie_id)
-        if not result:
-            error = self.movie_view.print_error("Could not delete review for movie ID: " + movie_id)
-            return error
-        result = self.movie_view.print_delete_review(result)
-        return result
-    
-    def edit_review(self, user_id, movie_id, review):
-        result = self.movie_store.edit_review(user_id, movie_id, review)
-        if not result:
-            error = self.movie_view.print_error("Could not edit review for movie ID: " + movie_id)
-            return error
-        result = self.movie_view.print_edit_review(result)
-        return result
