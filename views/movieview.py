@@ -81,7 +81,7 @@ class MovieView:
         welcome += '\n9. Read a review'
         welcome += '\n10. Create or Update a review for a movie'
         welcome += '\n11. Delete your review for a movie'
-        # welcome += '\n11. Create a user (Admin right)'
+        
         welcome += '\nEnter your choice (number) - type "quit" to exit: '
         return welcome
 

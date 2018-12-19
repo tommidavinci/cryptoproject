@@ -127,7 +127,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                     break
 
-                if msg == '4': #################################################### Get movies user might be interested in by Precise algorithm
+                if msg == '4': #################################################### Get movies user might be interested in by Quick algorithm
                     result = movie_controller.get_quick_interested_movies(userId)
                     result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
