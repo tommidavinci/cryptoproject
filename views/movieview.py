@@ -18,9 +18,10 @@ class MovieView:
         return result
 
     def print_get_similar_movies_by_genre(self, movie_id, movies):
-        result = "Found movies of similar genre to id: {0} | {1} - {2}:\n\n".format(movies[0][0], movies[0][1][0], movies[0][2])
+        mov = movies.pop(0)
+        result = "Found movies of similar genre to id: {0} | {1} - {2}:\n{3}\n".format(mov[0], mov[1].pop(0), mov[2], self.array_to_string(mov[1]))
         for movie in movies:
-            result += movie_format.format(movie[0], movie[1][0], movie[2], self.array_to_string(movie[1]))
+            result += movie_format.format(movie[0], movie[1].pop(0), movie[2], self.array_to_string(movie[1]))
         return result
     
     #################################################### Rating
