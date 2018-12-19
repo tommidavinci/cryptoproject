@@ -16,7 +16,7 @@ class MovieStore:
         import random
         length = len(recommended_movies._records)
         for num in range(20):
-            result.append(str(recommended_movies._records[random.randint(0, length)]['m.id']))
+            result.append(str(recommended_movies._records[random.randint(0, length - 1)]['m.id']))
             print(result[num])
         result = self.db.query("select * from get_movies(array[" + ','.join(result) + "])")
         return result
@@ -28,7 +28,7 @@ class MovieStore:
         import random
         length = len(recommended_movies._records)
         for num in range(20):
-            result.append(str(recommended_movies._records[random.randint(0, length)]['m.id']))
+            result.append(str(recommended_movies._records[random.randint(0, length - 1)]['m.id']))
             print(result[num])
         result = self.db.query("select * from get_movies(array[" + ','.join(result) + "])")
         return result
