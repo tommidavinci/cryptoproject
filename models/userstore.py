@@ -25,10 +25,11 @@ class UserStore:
             h_s = hash_password(password)
             res = self.db.query_with_params("select * from insert_user(%s,%s,%s)",
                                                 [username,h_s[0], h_s[1]])
-            if res:
-                self.graphdb.create_user(res)
+            #if res is not None and res[0] > 0:
             if len(res) > 0:
+                self.graphdb.create_user(res[0][0])
                 return res[0][0] # the 1 row with userId, username
+
             return None
 
     #################################################### test
