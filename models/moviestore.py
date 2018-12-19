@@ -21,6 +21,18 @@ class MovieStore:
         result = self.db.query("select * from get_movies(array[" + ','.join(result) + "])")
         return result
 
+    def get_quick_interested_movies(self, user_id):
+        prelimResult = self.graphdb.get_quick_similar_users(user_id)
+        recommended_movies = self.graphdb.get_movies_from_users_not_rated_by_x(user_id, prelimResult)
+        result = []
+        import random
+        length = len(recommended_movies._records)
+        for num in range(20):
+            result.append(str(recommended_movies._records[random.randint(0, length)]['m.id']))
+            print(result[num])
+        result = self.db.query("select * from get_movies(array[" + ','.join(result) + "])")
+        return result
+        
     def search_movie(self, movie_name, year = -1, limit = 10): #### Anon Accessible
         return self.db.query_with_params("select * from search_movie_title(%s, %s, %s)",
                                             (movie_name, year, limit))

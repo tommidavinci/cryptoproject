@@ -1,4 +1,4 @@
-movie_format =          "id: {0} | {1} - {2}\na.k.a {3}\n" 
+movie_format =          "id: {0} | {1} - {2}\n{3}\n" 
 review_format =         "id: {0} | {1} - {2}\n{3}\n{4}\n\n{5}\n\nBy:{6}"
 list_review_format =    "id: {0} | {1} - {2} | '{3}'\n"
 class MovieView:
@@ -13,7 +13,7 @@ class MovieView:
     def print_get_interested_movies(self, movies):
         result = "Found movies that you might get interested based on your prior ratings:\n"
         for movie in movies:
-            result += movie_format.format(movie[0], self.array_to_string(movie[1]), movie[2])
+            result += movie_format.format(movie[0], movie[1].pop(0), movie[2], self.array_to_string(movie[1]))
         return result
 
     def print_get_similar_movies_by_genre(self, movie_id, movies): # Which is called?
@@ -71,16 +71,16 @@ class MovieView:
         welcome += '\n1. Search for a movie'
         welcome += '\n2. List all the movies that has similar genres with a given movie'
 
-        welcome += '\n3. List all the movies that you might interested in (Precise)' #?
-        welcome += '\n4. List all the movies that you have rated' 
-        welcome += '\n5. Rate a movie or update an existing rating ' # c rating
-        # welcome += '\n6. Edit your rate for a movie' 
-        welcome += '\n6. Delete your rate for a movie'
+        welcome += '\n3. List all the movies that you might interested in (Precise)'
+        welcome += '\n4. List all the movies that you might interested in (Quick)'
+        welcome += '\n5. List all the movies that you have rated' 
+        welcome += '\n6. Rate a movie or update an existing rating '
+        welcome += '\n7. Delete your rating for a movie'
         
-        welcome += '\n7. List all movies that you reviewed'
-        welcome += '\n8. Read a review'
-        welcome += '\n9. Create or Update a review for a movie'
-        welcome += '\n10. Delete your review for a movie'
+        welcome += '\n8. List all movies that you reviewed'
+        welcome += '\n9. Read a review'
+        welcome += '\n10. Create or Update a review for a movie'
+        welcome += '\n11. Delete your review for a movie'
         # welcome += '\n11. Create a user (Admin right)'
         welcome += '\nEnter your choice (number) - type "quit" to exit: '
         return welcome
@@ -99,7 +99,8 @@ class MovieView:
             res = "a.k.a. "
             for item in array:
                 res += str(item) + " | a.k.a. "
-            return res.rstrip(" | a.k.a. ")
+            res = res.rstrip(" | a.k.a. ")
+            return res + "\n"
         return ""
 
     def print_error(self, message):
