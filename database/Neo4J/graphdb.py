@@ -60,6 +60,28 @@ class neo4jDB(object):
             ORDER BY similarity DESC LIMIT 10""", userId=userId)
         return result
     
+    def get_quick_similar_users(self, userId):
+        with self._driver.session() as session:
+            result = session.read_transaction(self._get_quick_interested_movies, userId)
+            return result
+    @staticmethod
+    def _get_quick_interested_movies(tx, userId):
+        result = tx.run("""
+            MATCH (u:User {id:$userId})-->(m:Movie)
+            WITH u, toFloat(count(DISTINCT m)) AS movies
+            MATCH (u)-[a:RATED]->(m:Movie)<-[b:RATED]-(xu:User) WHERE a.rating > 4 AND b.rating = a.rating
+            WITH u, collect(DISTINCT xu.id) + u.id as userIds, collect(DISTINCT m.id) AS movieIds, movies
+            MATCH (m:Movie), (x:User)
+                WHERE x.id IN userIds AND m.id IN movieIds AND (size((u)-->(:Movie)<--(x)) > (movies / 10) * 8 OR x.id = u.id)
+            OPTIONAL MATCH (x)-[r:RATED]->(m)
+            WITH x, {item:x.id, weights: collect(coalesce(r.rating,0))} AS userData
+            WITH collect(userData) AS data
+            CALL algo.similarity.cosine.stream(data)
+            YIELD item1, item2, count1, count2, similarity WHERE item1 = $userId OR item2 = $userId
+            RETURN item1 AS from, item2 AS to, similarity
+            ORDER BY similarity DESC LIMIT 10""", userId=userId)
+        return result
+    
     #################################################### Rating CRUD
     def delete_movie_rating(self, userId, movieId):
         with self._driver.session() as session:
