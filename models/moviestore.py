@@ -25,24 +25,22 @@ class MovieStore:
         return self.db.query_with_params("select * from search_movie_title(%s, %s, %s)",
                                             (movie_name, year, limit))
 
-    ## User
-
     #################################################### Review Functionality
     def list_reviews(self, user_id):
         return self.db.query_with_params("select * from list_reviews(%s)", [user_id])
-        
-    
+
     def read_review(self, user_id, movie_id):
-        return self.db.query_with_params("select * from read_review(%s,%s)",[user_id,movie_id])
+        return self.db.query_with_params("select * from read_review(%s,%s)",(user_id, movie_id))
 
     def create_update_review(self, user_id, movie_id, title, review):
-        result = self.db.query_with_params("select * from insert_update_review(%s,%s,%s,%s)", [user_id, movie_id, title, review])
-        if result is not None and result[0] == 1:
-            return self.db.query_with_params("select * from read_review(%s,%s) ",[user_id, movie_id])
+        result = self.db.query_with_params("select * from insert_update_review(%s,%s,%s,%s)",
+                                            (user_id, movie_id, title, review))
+        if result is not None and result[0][0] == 1:
+            return self.db.query_with_params("select * from read_review(%s,%s) ",(user_id, movie_id))
     
     def delete_review(self, user_id, movie_id):
-        result = self.db.query_with_params("select * from delete_review(%s,%s)",[user_id, movie_id])
-        return result is not None and result[0] == 1
+        result = self.db.query_with_params("select * from delete_review(%s,%s)",(user_id, movie_id))
+        return result is not None and result[0][0] == 1
     
     #################################################### Rating Functionality
     def delete_movie_rating(self, user_id, movie_id):

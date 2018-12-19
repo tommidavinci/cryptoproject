@@ -44,25 +44,23 @@ class MovieController:
             return error
         return self.movie_view.print_list_reviews(result)
 
-
     def read_review(self, user_id, movie_id):
         return self.movie_store.read_review(user_id, movie_id)
-        
 
     def create_update_review(self, user_id, movie_id, title, review):
-        result = self.movie_store.create_review(user_id, movie_id, review)
+        result = self.movie_store.create_update_review(user_id, movie_id, title, review)
         if not result:
             error = self.movie_view.print_error("Could not create the review")
             return error
-        result = self.movie_view.print_create_review(result)
+        result = self.movie_view.print_create_update_review(result[0])
         return result
 
     def delete_review(self, user_id, movie_id):
         result = self.movie_store.delete_review(user_id, movie_id)
         if not result:
-            error = self.movie_view.print_error("Could not delete review for movie ID: " + movie_id)
+            error = self.movie_view.print_error("Could not delete review for movie ID: " + str(movie_id))
             return error
-        result = self.movie_view.print_delete_review(result)
+        result = self.movie_view.print_delete_review(movie_id)
         return result
     
     #################################################### Rating Functionality

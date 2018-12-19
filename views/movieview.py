@@ -1,5 +1,5 @@
 movie_format =          "id: {0} | {1} - {2}\na.k.a {3}\n" 
-review_format =         "id: {0} | {1} - {2}\na.k.a {3}\n{4}\n\n{5}\n\nBy:{6}}"
+review_format =         "id: {0} | {1} - {2}\n{3}\n{4}\n\n{5}\n\nBy:{6}"
 list_review_format =    "id: {0} | {1} - {2} | '{3}'\n"
 class MovieView:
     
@@ -26,35 +26,6 @@ class MovieView:
                         result += movies[i][1][j] + " | "
         return result.rstrip(" | ")
     
-    #################################################### Review
-    def print_list_reviews(self, reviews):
-        result = "List of reviewed movies\n"
-        for review in reviews:
-            result += list_review_format.format(str(review[0]),review[1],str(review[2]),review[3])
-        return result
-    
-    def print_review(self, review):
-        return review_format.format(review[0],review[1].pop(0),review[2], self.array_to_string(review[1]),review[4],review[5], review[3])
-
-
-    def print_create_review(self, review):
-        result = "Created or updated review"
-        #result += movie_format.format(movies[0], movies[1].pop(1), movies[2], self.array_to_string(movies[1]))
-        result += review_format.format(review[0],review[1].pop(0),review[2], self.array_to_string(review[1]),review[4],review[5], review[3])
-        #result += "Review: " + movies[3]
-        return result
-    
-    def print_delete_review(self, movies):
-        result = "Deleted review of movie: \n"
-        result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
-        return result
-    
-    # def print_edit_review(self, movies):
-    #     result = "Edited review of movie: \n"
-    #     result += movie_format.format(movies[0], self.array_to_string(movies[1]), movies[2])
-    #     result += "Review: " + movies[3]
-    #     return result
-    
     #################################################### Rating
     def print_delete_movie_rating(self, movies):
         result = "Deleted rating of movie: \n"
@@ -71,6 +42,26 @@ class MovieView:
     def print_set_movie_rating(self, movies):
         result = "Rated movie: \n"
         result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}   -  Rating: {3}\n".format(movies[0], self.array_to_string(movies[1]), movies[2], movies[3])
+        return result
+    
+    #################################################### Review
+    def print_list_reviews(self, reviews):
+        result = "List of reviewed movies\n"
+        for review in reviews:
+            result += list_review_format.format(str(review[0]),review[1],str(review[2]),review[3])
+        return result
+    
+    def print_review(self, review):
+        return review_format.format(review[0],review[1].pop(0),review[2], self.array_to_string(review[1]),review[4],review[5], review[3])
+
+    def print_create_update_review(self, review):
+        result = "Created or updated review: \n"
+        result += review_format.format(str(review[0]),review[1].pop(0), str(review[2]),
+                                        self.array_to_string(review[1]), review[4], review[5], review[3])
+        return result
+    
+    def print_delete_review(self, movie):
+        result = "Deleted review of movie ID: " + str(movie)
         return result
 
     #################################################### Menus
@@ -104,10 +95,12 @@ class MovieView:
 
     #################################################### Utility & Error
     def array_to_string(self, array):
-        res = ""
-        for item in array:
-            res += str(item) + " | "
-        return res.rstrip(" |")
+        if len(array) > 0:
+            res = "a.k.a. "
+            for item in array:
+                res += str(item) + " | a.k.a. "
+            return res.rstrip(" | a.k.a. ")
+        return ""
 
     def print_error(self, message):
         return "Error: " + message
