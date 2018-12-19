@@ -52,7 +52,8 @@ class MovieView:
         return result
     
     def print_review(self, review):
-        return review_format.format(review[0],review[1].pop(0),review[2], self.array_to_string(review[1]),review[4],review[5], review[3])
+        return review_format.format(str(review[0]), review[1].pop(0), str(review[2]),
+                                    self.array_to_string(review[1]), review[4], review[5], review[3])
 
     def print_create_update_review(self, review):
         result = "Created or updated review: \n"
