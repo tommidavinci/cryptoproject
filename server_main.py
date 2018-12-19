@@ -173,6 +173,7 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     client.send(sign_and_encrypt(box, server_signing_key, 'Movie ID: '))
                     movie_id = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
                     result = movie_controller.read_review(userId, movie_id)
+                    result += '\nSend any key to return to Home'
                     client.send(sign_and_encrypt(box, server_signing_key, result))
                     back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                     break
