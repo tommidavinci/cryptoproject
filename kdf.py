@@ -11,8 +11,3 @@ def hash_password(password, salt = utils.random(pwhash.argon2id.SALTBYTES)):
 #################################################### Verify Password match
 def verify_password(password, salt, hashed_password):
     return hash_password(password, salt)[0] == hashed_password
-
-# p = b'password'
-# h = b'("\205#k|\342_\327Df\322\211\256\342\024'
-
-# print(pwhash.argon2i.verify(h,p))
