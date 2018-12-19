@@ -248,11 +248,12 @@ user_view = UserView()
 user_controller = UserController(user_store, user_view)
 
 #################################################### Run tests
+print("Running test methods...")
 for res in user_store.test():
     print(res)
-print('neo4j', movie_store.test())
 for res in movie_store.get_rated_movies(1):
     print(res)
+print("Finished running test methods!")
 
 #################################################### Listen for connections
 if __name__ == "__main__":
