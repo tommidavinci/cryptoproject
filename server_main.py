@@ -29,7 +29,6 @@ def accept_incoming_connections():
         client_publickey = PublicKey(combined_key[0])
 
         client_verify_key = VerifyKey(combined_key[1])
-
         server_client_box = Box(skserver, client_publickey)
 
         symmetric_secret_key = nacl.utils.random(nacl.secret.SecretBox.KEY_SIZE)
@@ -174,7 +173,8 @@ def handle_client(client, client_verify_key, box):  # Takes client socket as arg
                     client.send(sign_and_encrypt(box, server_signing_key, 'Movie ID: '))
                     movie_id = int(decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ)))
                     result = movie_controller.read_review(userId, movie_id)
-                    movie_view.print_review(result)
+                    client.send(sign_and_encrypt(box, server_signing_key, result))
+                    back = decrypt_and_verify(box, client_verify_key, client.recv(BUFSIZ))
                     break
 
                 elif msg == '10': #################################################### Create/Update review of a movie

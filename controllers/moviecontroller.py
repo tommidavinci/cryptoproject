@@ -53,7 +53,12 @@ class MovieController:
         return self.movie_view.print_list_reviews(result)
 
     def read_review(self, user_id, movie_id):
-        return self.movie_store.read_review(user_id, movie_id)
+        result = self.movie_store.read_review(user_id, movie_id)
+        if not result:
+            error = self.movie_view.print_error("No review found for movie ID: " + str(movie_id))
+            return error
+        result = self.movie_view.print_review(result[0])
+        return result
 
     def create_update_review(self, user_id, movie_id, title, review):
         result = self.movie_store.create_update_review(user_id, movie_id, title, review)
