@@ -5,26 +5,23 @@ class MovieView:
     
     #################################################### Movies
     def print_movies(self, movie_name, movies):
-        result = "Found movies that is similar to search string \"{0}\"\n".format(movie_name)
+        result = "Found movies that is similar to search string \"{0}\"\n\n".format(movie_name)
         for movie in movies:
-            result += movie_format.format(movie[0], self.array_to_string(movie[1]), movie[2])
+            result += movie_format.format(movie[0], movie[1], movie[2], "")
         return result
 
     def print_get_interested_movies(self, movies):
         result = "Found movies that you might get interested based on your prior ratings:\n"
         for movie in movies:
-            result += movie_format.format(movie[0], movie[1].pop(0), movie[2], self.array_to_string(movie[1]))
+            if movie[0] != movies[0][0]:
+                result += movie_format.format(movie[0], movie[1].pop(0), movie[2], self.array_to_string(movie[1]))
         return result
 
-    def print_get_similar_movies_by_genre(self, movie_id, movies): # Which is called?
-        result = "Found movies of similar genre to {0} - {1}\n".format(movies[0],movie_format[2])
-        for i in range(1,len(movies)):
-            result += movie_format.format(movies[i][0], movies[i][1][0], movies[i][2])
-            if len(movies[i][1]) > 1:
-                result += "    A.K.A.: "
-                for j in range(1, len(movies[i][1])):
-                        result += movies[i][1][j] + " | "
-        return result.rstrip(" | ")
+    def print_get_similar_movies_by_genre(self, movie_id, movies):
+        result = "Found movies of similar genre to id: {0} | {1} - {2}:\n\n".format(movies[0][0], movies[0][1][0], movies[0][2])
+        for movie in movies:
+            result += movie_format.format(movie[0], movie[1][0], movie[2], self.array_to_string(movie[1]))
+        return result
     
     #################################################### Rating
     def print_delete_movie_rating(self, movies):
@@ -35,13 +32,15 @@ class MovieView:
     def print_get_rated_movies(self, movies):
         result = "Found movies that you have rated: \n"
         for movie in movies:
-            result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}   -  Rating: {3}\n".format(movie[0], self.array_to_string(movie[1]), movie[2], movie[3])
+            result += "id: {0} | {1} - {2} | Rating: {3}\n".format(movie[0], movie[1].pop(0), movie[2], movie[3])
+            result += "{0}\n".format(self.array_to_string(movie[1]))
         return result
     
 
     def print_set_movie_rating(self, movies):
         result = "Rated movie: \n"
-        result += "Movie Id: {0}   -  Movie Name: {1} - Year: {2}   -  Rating: {3}\n".format(movies[0], self.array_to_string(movies[1]), movies[2], movies[3])
+        result += "id: {0} | {1} - {2} | Rating: {3}\n".format(movies[0], movies[1].pop(0), movies[2], movies[3])
+        result += "{0}".format(self.array_to_string(movies[1]))
         return result
     
     #################################################### Review
@@ -52,7 +51,8 @@ class MovieView:
         return result
     
     def print_review(self, review):
-        return review_format.format(review[0],review[1].pop(0),review[2], self.array_to_string(review[1]),review[4],review[5], review[3])
+        return review_format.format(str(review[0]), review[1].pop(0), str(review[2]),
+                                    self.array_to_string(review[1]), review[4], review[5], review[3])
 
     def print_create_update_review(self, review):
         result = "Created or updated review: \n"
@@ -81,7 +81,7 @@ class MovieView:
         welcome += '\n9. Read a review'
         welcome += '\n10. Create or Update a review for a movie'
         welcome += '\n11. Delete your review for a movie'
-        # welcome += '\n11. Create a user (Admin right)'
+        
         welcome += '\nEnter your choice (number) - type "quit" to exit: '
         return welcome
 

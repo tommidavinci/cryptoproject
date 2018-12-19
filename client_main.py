@@ -65,7 +65,7 @@ while True:
             selection = input()
         encrypted = sign_and_encrypt(symmetric_secret_key_box_client, client_signing_key, selection)
         client_socket.send(encrypted)
-    except OSError: # Possibly client has left the chat.
+    except OSError:
         break
 
 
